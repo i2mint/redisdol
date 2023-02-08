@@ -1,8 +1,8 @@
 """Base objects for redisdol"""
 
 
-
 from functools import wraps
+from typing import Iterable
 from dol.base import Collection, KvReader, KvPersister
 
 from redis import Redis
@@ -184,13 +184,9 @@ class RedisList(MutableSequence):
                     raise NotImplementedError(
                         "Slicing is so far only implemented without step"
                     )
-                return self._source.lrange(
-                    self._name, i.start or 0, i.stop - 1
-                )
+                return self._source.lrange(self._name, i.start or 0, i.stop - 1)
             except AttributeError:
-                raise KeyError(
-                    f"Index should be an integer or a slice object. Was {i}"
-                )
+                raise KeyError(f"Index should be an integer or a slice object. Was {i}")
 
     def __iter__(self):
         # TODO: Find a more efficient way to do this.
@@ -228,10 +224,6 @@ class RedisCollection(RedisBytesCollection):
             return RedisList(self._source, k)
 
 
-from typing import Iterable
-from collections.abc import Mapping
-
-
 class RedisPersister(RedisCollection, RedisBytesPersister):
     def __setitem__(self, k, v):
         if isinstance(v, (str, bytes)):
@@ -240,4 +232,3 @@ class RedisPersister(RedisCollection, RedisBytesPersister):
             if k in self:
                 del self[k]
             return self._source.rpush(k, *v)
-
