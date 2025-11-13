@@ -2,7 +2,7 @@
 
 
 from functools import wraps
-from typing import Iterable
+from collections.abc import Iterable
 from dol.base import Collection, KvReader, KvPersister
 
 from redis import Redis
