@@ -1,6 +1,5 @@
 """Base objects for redisdol"""
 
-
 from functools import wraps
 from collections.abc import Iterable
 from dol.base import Collection, KvReader, KvPersister

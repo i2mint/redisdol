@@ -22,6 +22,5 @@ from redisdol.base import (
     RedisFactories,
     RedisPersister,
     RedisCollection,
-    RedisList
+    RedisList,
 )
-

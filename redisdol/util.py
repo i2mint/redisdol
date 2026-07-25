@@ -9,4 +9,3 @@ def cast_to_numeric_if_possible(x):
             return float(x)
         except ValueError:
             return x
-
