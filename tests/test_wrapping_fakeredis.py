@@ -2,7 +2,7 @@
 
 import pytest
 from fakeredis import FakeRedis
-from dol import KeyCodecs, wrap_kvs
+from dol import KeyCodecs, Store, wrap_kvs
 
 from redisdol import (
     RedisBytesPersister,
@@ -453,3 +453,143 @@ def test_key_names_do_not_change_how_a_pipeline_error_is_classified():
     with pytest.raises(ResponseError, match="READONLY") as info:
         del RedisList(ReadOnlyPipe(), "no such key")[0]
     assert info.value.__cause__ is None  # not its own cause
+
+
+# ---- every list operation on a wrong-type key; bytes-like elements (i2mint/redisdol#15) --
+
+
+def _wrong_type_lists():
+    r = FakeRedis()
+    r.set("s", "text")
+    r.hset("h", "f", "v")
+    return r, [RedisList(r, "s"), RedisList(r, "h")]
+
+
+_READ_OPS = {
+    "getitem": lambda l: l[0],
+    "negative": lambda l: l[-1],
+    "slice": lambda l: l[0:2],
+    "stepped slice": lambda l: l[::2],
+    "len": len,
+    "iter": list,
+    "contains": lambda l: "x" in l,
+    "index": lambda l: l.index("x"),
+    "count": lambda l: l.count("x"),
+    "reversed": lambda l: list(reversed(l)),
+    "append": lambda l: l.append("x"),
+    "extend": lambda l: l.extend(["x", "y"]),
+    "insert": lambda l: l.insert(0, "x"),
+    "pop": lambda l: l.pop(),
+    "pop0": lambda l: l.pop(0),
+    "remove": lambda l: l.remove("x"),
+    "clear": lambda l: l.clear(),
+    "iadd": lambda l: l.__iadd__(["x"]),
+    "setitem": lambda l: l.__setitem__(0, "x"),
+    "delitem": lambda l: l.__delitem__(0),
+}
+
+
+@pytest.mark.parametrize("op", list(_READ_OPS.values()), ids=list(_READ_OPS))
+def test_every_list_operation_on_a_wrong_type_key_is_a_type_error(op):
+    r, lists = _wrong_type_lists()
+    for lst in lists:
+        with pytest.raises(TypeError, match="not a list") as info:
+            op(lst)
+        assert type(info.value.__cause__).__name__ == "ResponseError" or (
+            info.value.__cause__ is None  # raised by our own type check (clear)
+        )
+    assert r.get("s") == b"text"  # nothing was destroyed
+    assert r.hget("h", "f") == b"v"
+
+
+def test_clear_still_deletes_lists_and_tolerates_a_missing_key():
+    r = FakeRedis()
+    r.rpush("l", "a", "b")
+    RedisList(r, "l").clear()
+    assert not r.exists("l")
+    RedisList(r, "nope").clear()  # like list.clear on an empty list: no error
+
+
+def test_decode_responses_connection_still_gets_type_errors():
+    r = FakeRedis(decode_responses=True)
+    r.set("s", "text")
+    with pytest.raises(TypeError, match="not a list"):
+        RedisList(r, "s").clear()
+    assert r.get("s") == "text"
+
+
+def test_missing_key_reads_are_unchanged():
+    lst = RedisList(FakeRedis(), "nope")
+    assert len(lst) == 0 and list(lst) == [] and lst[0:3] == []
+    with pytest.raises(IndexError):
+        lst[0]
+
+
+@pytest.mark.parametrize("make", [bytearray, memoryview])
+def test_bytes_like_elements_are_stored_as_their_bytes(make):
+    r = FakeRedis()
+    lst = RedisList(r, "l")
+    lst.append(make(b"ab"))
+    lst.extend([make(b"cd")])
+    lst.insert(0, make(b"zz"))
+    assert r.lrange("l", 0, -1) == [b"zz", b"ab", b"cd"]
+    lst[0] = make(b"yy")
+    assert lst[0] == b"yy"
+
+
+def test_cast_memoryview_element_is_sent_by_its_bytes():
+    import array
+
+    mv = memoryview(array.array("I", [1, 2]))
+    assert len(mv) == 2 and mv.nbytes == 8  # redis-py would send len(mv)
+    r = FakeRedis()
+    RedisList(r, "l").append(mv)
+    assert r.lindex("l", 0) == bytes(mv)
+    s = _store()
+    s["k"] = [mv, b"x"]  # via the store's list path as well
+    assert s._source.lindex("k", 0) == bytes(mv)
+
+
+def test_element_codec_output_that_is_bytes_like_is_normalised():
+    r = FakeRedis()
+    lst = RedisList(r, "l", encode=lambda s: bytearray(s.encode()))
+    lst.append("hi")
+    assert r.lindex("l", 0) == b"hi"
+
+
+def test_wrapped_class_of_falls_back_to_the_init_closure(monkeypatch):
+    """Older dol versions don't set ``_wrapped_class`` etc.: the closure is read instead."""
+    from redisdol.base import _wrapped_class_of
+
+    W = KeyCodecs.prefixed("p:")(RedisPersister)
+    assert _wrapped_class_of(W)[0] is RedisPersister
+    wrap = next((c for c in W.__mro__ if "_wrapped_class" in vars(c)), None)
+    for attr in ("_wrapped_class", "_wrapper_class", "_delegation_attr"):
+        if wrap is not None:  # newer dol sets them; with older dol this is already the fallback
+            monkeypatch.delattr(wrap, attr)
+    assert _wrapped_class_of(W)[0] is RedisPersister
+    s = store_from_source(FakeRedis(), W)
+    s["a"] = "1"
+    assert s["a"] == b"1"
+
+
+def test_subclass_with_its_own_init_is_refused_and_a_mixin_in_the_mro_still_runs():
+    W = KeyCodecs.prefixed("p:")(RedisPersister)
+
+    class Y(W):  # built through its own __init__, which we can't call without a Redis(**kw)
+        def __init__(self, *a, **k):
+            super().__init__(*a, **k)
+            self.extra = 1
+
+    with pytest.raises(TypeError, match="can't be determined"):
+        store_from_source(FakeRedis(), Y)
+
+    class Mixin(Store):
+        def __init__(self, store):
+            super().__init__(store)
+            self.mixin_ran = True
+
+    class X(W, Mixin):
+        pass
+
+    assert store_from_source(FakeRedis(), X).mixin_ran is True
