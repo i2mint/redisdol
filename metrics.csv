@@ -1,12 +1,8 @@
 metric,value
 schema_version,1.0
-timestamp,2026-10-13T07:39:41.633087Z
-commit_sha,42c3b1f045fc30a0eb0198ef548f161a2d671818
-commit_message,"Raise KeyError for missing keys; pass non-lists through _convert_numeric_list
-
-Fixes #4, fixes #5
-
-Co-Authored-By: Claude Sonnet 5.5 <noreply@anthropic.com>"
+timestamp,2026-10-13T07:41:29.753646Z
+commit_sha,a0d7dd4eaacb99c58529090f3c3ad3e2f603e3c9
+commit_message,Merge 42c3b1f045fc30a0eb0198ef548f161a2d671818 into b80f0020f77d4ea9259c3418b6e09a43d6b5be70
 python_version,3.10
 metrics.umpyre_stats.num_functions,11005
 metrics.umpyre_stats.num_classes,2166
@@ -22,9 +18,9 @@ metrics.umpyre_stats.mean_lines_per_function,14.293866424352567
 metrics.umpyre_stats.files_analyzed,748
 metrics.umpyre_stats.pypi_version,0.0.5
 metrics.workflow_status.last_run_status,success
-metrics.workflow_status.last_success_timestamp,2026-10-13T07:35:37Z
+metrics.workflow_status.last_success_timestamp,2026-10-13T07:39:47Z
 metrics.workflow_status.recent_failure_count,0
-metrics.workflow_status.run_url,https://github.com/i2mint/redisdol/actions/runs/38363594398
+metrics.workflow_status.run_url,https://github.com/i2mint/redisdol/actions/runs/38363955866
 metrics.workflow_status.total_runs_analyzed,10
 metrics.wily.cyclomatic_avg,0.0
 metrics.wily.maintainability_index,0.0
@@ -40,4 +36,4 @@ metrics.coverage.branch_coverage,0.0
 metrics.coverage.statements_covered,0
 metrics.coverage.statements_total,0
 metrics.coverage.error,No coverage file found
-collection_duration_seconds,4.823810815811157
+collection_duration_seconds,4.545381307601929
