@@ -371,3 +371,50 @@ def test_store_from_source_runs_the_wrapper_classes_own_init():
     assert s["k"] == b"v"
     cls2 = wrap_kvs(RedisPersister, wrapper=Tagged, obj_of_data=lambda v: v)
     assert store_from_source(FakeRedis(), cls2).tag == "T"
+
+
+# ---- wrong-type keys and bytes-like values (i2mint/redisdol#12) -------------------------
+
+
+def test_list_ops_on_a_string_key_are_a_wrong_type_not_an_index_error():
+    r = FakeRedis()
+    r.set("s", "text")
+    lst = RedisList(r, "s")
+    with pytest.raises(TypeError, match="not a list"):
+        lst[0] = "x"
+    with pytest.raises(TypeError, match="not a list"):
+        del lst[0]
+    assert r.get("s") == b"text"  # untouched
+
+
+def test_list_ops_out_of_range_or_missing_are_still_index_errors():
+    r = FakeRedis()
+    r.rpush("l", "a")
+    lst = RedisList(r, "l")
+    for op in (lambda: lst.__setitem__(5, "x"), lambda: lst.__delitem__(5)):
+        with pytest.raises(IndexError):
+            op()
+    missing = RedisList(r, "nope")
+    with pytest.raises(IndexError):
+        missing[0] = "x"
+    with pytest.raises(IndexError):
+        del missing[0]
+
+
+def test_other_redis_errors_are_not_disguised_as_index_errors():
+    from redis.exceptions import ResponseError
+
+    class Failing:
+        def lset(self, *a):
+            raise ResponseError("READONLY You can't write against a read only replica.")
+
+    with pytest.raises(ResponseError, match="READONLY"):
+        RedisList(Failing(), "l")[0] = "x"
+
+
+@pytest.mark.parametrize("make", [bytearray, memoryview])
+def test_bytes_like_values_are_stored_as_a_string_not_a_list_of_ints(make):
+    s = _store()
+    s["k"] = make(b"hello")
+    assert s["k"] == b"hello"
+    assert s._source.type("k") == b"string"
