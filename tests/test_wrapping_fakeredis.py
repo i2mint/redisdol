@@ -354,3 +354,20 @@ def test_store_from_source_refuses_wrapped_class_it_cannot_unwrap():
 
     with pytest.raises(TypeError, match="can't be determined"):
         store_from_source(FakeRedis(), Opaque)
+
+
+def test_store_from_source_runs_the_wrapper_classes_own_init():
+    from dol import Store
+
+    class Tagged(Store):
+        def __init__(self, store, tag="T"):
+            super().__init__(store)
+            self.tag = tag
+
+    cls = Tagged.wrap(RedisPersister)
+    s = store_from_source(FakeRedis(), cls)
+    assert s.tag == "T"
+    s["k"] = "v"
+    assert s["k"] == b"v"
+    cls2 = wrap_kvs(RedisPersister, wrapper=Tagged, obj_of_data=lambda v: v)
+    assert store_from_source(FakeRedis(), cls2).tag == "T"

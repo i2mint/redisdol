@@ -46,20 +46,26 @@ class RedisFactories:
 
 
 def _wrapped_class_of(cls):
-    """The class a ``dol`` class-wrapper (``wrap_kvs``, ``KeyCodecs...``, ``filt_iter``)
-    delegates to, read from the wrapper's ``__init__`` closure (``None`` if it has none)."""
+    """``(wrapped class, wrapper class)`` of a ``dol`` class-wrapper (``wrap_kvs``,
+    ``KeyCodecs...``, ``filt_iter``), read from the closure of the ``__init__`` dol
+    generates for it (``None`` if it has none, or delegates through another attribute
+    than ``store``)."""
     init = getattr(cls, "__init__", None)
     code, cells = getattr(init, "__code__", None), getattr(init, "__closure__", None)
     if code is None or not cells:
         return None
     free = dict(zip(code.co_freevars, cells))
-    if "wrapped" not in free or "delegation_attr" not in free:
+    if not {"wrapped", "delegation_attr", "__class__"} <= free.keys():
         return None
     try:
-        wrapped, attr = free["wrapped"].cell_contents, free["delegation_attr"].cell_contents
+        wrapped = free["wrapped"].cell_contents
+        attr = free["delegation_attr"].cell_contents
+        wrapper = free["__class__"].cell_contents
     except ValueError:  # empty cell
         return None
-    return (wrapped, attr) if isinstance(wrapped, type) else None
+    if not (isinstance(wrapped, type) and isinstance(wrapper, type) and attr == "store"):
+        return None
+    return wrapped, wrapper
 
 
 def _new_with_source(cls, source):
@@ -73,10 +79,11 @@ def _new_with_source(cls, source):
                 "Store whose wrapped class can't be determined. Build the store over "
                 "the connection first and wrap that instance instead."
             )
-        wrapped, attr = found
+        wrapped, wrapper = found
         self = object.__new__(cls)
-        Store.__init__(self, _new_with_source(wrapped, source))
-        assert attr == "store"
+        # what dol's generated __init__ does after building the delegate: the wrapper
+        # class's own __init__ (which may set state of its own), not Store's directly
+        super(wrapper, self).__init__(_new_with_source(wrapped, source))
         return self
     self = object.__new__(cls)
     self._source = source
