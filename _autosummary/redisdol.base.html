@@ -351,8 +351,10 @@ runs in a WATCH/MULTI transaction (retried if the list changes meanwhile).</p>
 <dt class="sig sig-object py" id="redisdol.base.store_from_source">
 <span class="sig-prename descclassname"><span class="pre">redisdol.base.</span></span><span class="sig-name descname"><span class="pre">store_from_source</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">source</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cls</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/redisdol/base.html#store_from_source"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#redisdol.base.store_from_source" title="Link to this definition">#</a></dt>
 <dd><p>Make a store of type <code class="docutils literal notranslate"><span class="pre">cls</span></code> (default <code class="code docutils literal notranslate"><span class="pre">RedisPersister</span></code>) over a <code class="docutils literal notranslate"><span class="pre">Redis</span></code> connection.</p>
-<p>The returned store is a plain, <em>unwrapped</em> <code class="docutils literal notranslate"><span class="pre">cls</span></code> instance: it sees the whole
-keyspace of <code class="docutils literal notranslate"><span class="pre">source</span></code>. Apply any key/value codecs to the result yourself.</p>
+<p>The returned store is a plain <code class="docutils literal notranslate"><span class="pre">cls</span></code> instance: it sees the whole keyspace of
+<code class="docutils literal notranslate"><span class="pre">source</span></code>. Apply any key/value codecs to the result yourself. <code class="docutils literal notranslate"><span class="pre">cls</span></code> may be a class
+already wrapped with <code class="docutils literal notranslate"><span class="pre">dol</span></code> (e.g. <code class="code docutils literal notranslate"><span class="pre">RedisStoreWithNumericLists</span></code>): its wrapped class is
+built over <code class="docutils literal notranslate"><span class="pre">source</span></code> and wrapped as usual.</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span data-line="1"><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">fakeredis</span><span class="w"> </span><span class="kn">import</span> <span class="n">FakeRedis</span>
 </span><span data-line="2"><span class="gp">&gt;&gt;&gt; </span><span class="n">s</span> <span class="o">=</span> <span class="n">store_from_source</span><span class="p">(</span><span class="n">FakeRedis</span><span class="p">())</span>
 </span><span data-line="3"><span class="gp">&gt;&gt;&gt; </span><span class="n">s</span><span class="p">[</span><span class="s1">'k'</span><span class="p">]</span> <span class="o">=</span> <span class="s1">'v'</span>
@@ -411,7 +413,7 @@ keyspace of <code class="docutils literal notranslate"><span class="pre">source<
     </div>
   </div>
 </footer>
-      <script src="../_static/documentation_options.js?v=1fd71caa"></script>
+      <script src="../_static/documentation_options.js?v=bbaf98b3"></script>
       <script src="../_static/doctools.js?v=fd6eb6e6"></script>
       <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script src="../_static/clipboard.min.js?v=a7894cd8"></script>

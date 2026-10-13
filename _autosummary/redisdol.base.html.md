@@ -156,8 +156,10 @@ Bases: [`RedisCollection`](#redisdol.base.RedisCollection), [`RedisBytesPersiste
 
 Make a store of type `cls` (default `RedisPersister`) over a `Redis` connection.
 
-The returned store is a plain, *unwrapped* `cls` instance: it sees the whole
-keyspace of `source`. Apply any key/value codecs to the result yourself.
+The returned store is a plain `cls` instance: it sees the whole keyspace of
+`source`. Apply any key/value codecs to the result yourself. `cls` may be a class
+already wrapped with `dol` (e.g. `RedisStoreWithNumericLists`): its wrapped class is
+built over `source` and wrapped as usual.
 
 ```pycon
 >>> from fakeredis import FakeRedis

@@ -11,7 +11,7 @@
 - [redisdol.base](_autosummary/redisdol.base.html.md): Base objects for redisdol
 - [redisdol.stores](_autosummary/redisdol.stores.html.md): Ready made convenience Redis stores
 - [redisdol.util](_autosummary/redisdol.util.html.md): Utils for redisdol
-- [About this build](about-this-build.html.md): This documentation was built on &#42;&#42;2026-10-13 08:00 UTC&#42;&#42; from commit &lt;a href="https://github.com/i2m...
+- [About this build](about-this-build.html.md): This documentation was built on &#42;&#42;2026-10-13 14:25 UTC&#42;&#42; from commit &lt;a href="https://github.com/i2m...
 
 ## Optional
 

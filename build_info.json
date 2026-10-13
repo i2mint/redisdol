@@ -1,32 +1,32 @@
 {
   "schema_version": 1,
-  "built_at": "2026-10-13T08:00:41Z",
+  "built_at": "2026-10-13T14:25:05Z",
   "package": {
     "name": "redisdol",
-    "version": "0.0.6",
+    "version": "0.0.7",
     "display_name": "redisdol",
     "source": "pyproject.toml"
   },
   "git": {
     "available": true,
-    "commit": "f8caea06a0bad2a5ea2b97a1bd7797a2493118b5",
-    "short_commit": "f8caea0",
+    "commit": "e7d836cf3cecce1a7709f1e8b308b92c411dbf1d",
+    "short_commit": "e7d836c",
     "branch": "master",
     "tags": [],
     "dirty": false,
     "remote_url": "https://github.com/i2mint/redisdol",
-    "commit_url": "https://github.com/i2mint/redisdol/commit/f8caea06a0bad2a5ea2b97a1bd7797a2493118b5",
+    "commit_url": "https://github.com/i2mint/redisdol/commit/e7d836cf3cecce1a7709f1e8b308b92c411dbf1d",
     "error": null
   },
   "ci": {
     "provider": "github",
     "repository": "i2mint/redisdol",
-    "sha": "f8caea06a0bad2a5ea2b97a1bd7797a2493118b5",
+    "sha": "e7d836cf3cecce1a7709f1e8b308b92c411dbf1d",
     "sha_in_history": true,
     "ref": "refs/heads/master",
     "ref_name": "master",
-    "run_id": "38366171280",
-    "run_url": "https://github.com/i2mint/redisdol/actions/runs/38366171280",
+    "run_id": "38412918052",
+    "run_url": "https://github.com/i2mint/redisdol/actions/runs/38412918052",
     "server_url": "https://github.com"
   },
   "tools": {
@@ -60,14 +60,16 @@
   },
   "pypi": {
     "checked": true,
-    "latest": "0.0.6",
-    "relation": "same",
+    "latest": "0.0.8",
+    "relation": "behind",
     "error": null
   },
-  "reproduce": "git clone https://github.com/i2mint/redisdol && cd redisdol\ngit checkout f8caea06a0bad2a5ea2b97a1bd7797a2493118b5\npip install \"epythet==0.2.15\"\nepythet quickstart . --ignore tests/ scrap/ examples/",
+  "reproduce": "git clone https://github.com/i2mint/redisdol && cd redisdol\ngit checkout e7d836cf3cecce1a7709f1e8b308b92c411dbf1d\npip install \"epythet==0.2.15\"\nepythet quickstart . --ignore tests/ scrap/ examples/",
   "warnings": [],
   "alignment": {
-    "aligned": true,
-    "notes": []
+    "aligned": false,
+    "notes": [
+      "The documented version (0.0.7) is behind the latest release on PyPI (0.0.8): `pip install redisdol` gives newer code than these docs describe."
+    ]
   }
 }
