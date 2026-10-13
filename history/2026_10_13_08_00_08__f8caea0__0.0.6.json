@@ -1,0 +1,47 @@
+{
+  "collection_duration_seconds": 3.9653007984161377,
+  "commit_message": "RedisList: implement insert/del, fix slicing and IndexError; safe list assignment (#11)\n\n* RedisList: MutableSequence contract (insert, del, slices, IndexError); safe list assignment\n\nFixes #6, fixes #7\n\nCo-Authored-By: Claude Sonnet 5.5 <noreply@anthropic.com>\n\n* RedisList: TypeError for non-integer indices; guard iter_batch_size\n\nCo-Authored-By: Claude Sonnet 5.5 <noreply@anthropic.com>\n\n---------\n\nCo-authored-by: Claude Sonnet 5.5 <noreply@anthropic.com>",
+  "commit_sha": "f8caea06a0bad2a5ea2b97a1bd7797a2493118b5",
+  "metrics": {
+    "coverage": {
+      "branch_coverage": 0.0,
+      "error": "No coverage file found",
+      "line_coverage": 0.0,
+      "statements_covered": 0,
+      "statements_total": 0
+    },
+    "umpyre_stats": {
+      "comment_lines": 16968,
+      "comment_lines_ratio": 0.05204317301410576,
+      "docs_lines": 40044,
+      "empty_lines": 42954,
+      "empty_lines_ratio": 0.13174578345402516,
+      "files_analyzed": 748,
+      "function_lines": 157391,
+      "function_lines_ratio": 0.48273968905369635,
+      "mean_lines_per_function": 14.296575529112545,
+      "num_classes": 2166,
+      "num_functions": 11009,
+      "pypi_version": "0.0.6",
+      "total_lines": 326037
+    },
+    "wily": {
+      "cyclomatic_avg": 0.0,
+      "error": "wily report failed: Usage: wily report [OPTIONS] FILE [METRICS]...\nTry 'wily report --help' for help.\n\nError: Invalid value for '-f' / '--format': 'json' is not one of 'CONSOLE', 'HTML'.\n",
+      "files_analyzed": 0,
+      "maintainability_index": 0.0,
+      "total_loc": 0
+    },
+    "workflow_status": {
+      "last_run_status": "success",
+      "last_success_timestamp": "2026-10-13T07:58:18Z",
+      "recent_failure_count": 0,
+      "run_url": "https://github.com/i2mint/redisdol/actions/runs/38365988048",
+      "total_runs_analyzed": 10
+    }
+  },
+  "python_version": "3.10",
+  "schema_version": "1.0",
+  "timestamp": "2026-10-13T08:00:07.912409Z",
+  "workflow_status": {}
+}
