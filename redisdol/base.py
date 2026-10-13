@@ -46,10 +46,21 @@ class RedisFactories:
 
 
 def _wrapped_class_of(cls):
-    """``(wrapped class, wrapper class)`` of a ``dol`` class-wrapper (``wrap_kvs``,
+    """``(wrapped class, delegator class)`` of a ``dol`` class-wrapper (``wrap_kvs``,
     ``KeyCodecs...``, ``filt_iter``), read from the closure of the ``__init__`` dol
     generates for it (``None`` if it has none, or delegates through another attribute
-    than ``store``)."""
+    than ``store``). Reads the ``_wrapped_class`` / ``_wrapper_class`` /
+    ``_delegation_attr`` attributes dol sets on the wrapper (dol#131); falls back to the
+    closure of its generated ``__init__`` for older dol versions."""
+    attrs = tuple(
+        getattr(cls, a, None)
+        for a in ("_wrapped_class", "_wrapper_class", "_delegation_attr")
+    )
+    if all(a is not None for a in attrs):
+        wrapped, wrapper, attr = attrs
+        if isinstance(wrapped, type) and isinstance(wrapper, type) and attr == "store":
+            return wrapped, wrapper
+        return None
     init = getattr(cls, "__init__", None)
     code, cells = getattr(init, "__code__", None), getattr(init, "__closure__", None)
     if code is None or not cells:
@@ -65,7 +76,7 @@ def _wrapped_class_of(cls):
         return None
     if not (isinstance(wrapped, type) and isinstance(wrapper, type) and attr == "store"):
         return None
-    return wrapped, wrapper
+    return wrapped, wrapper.__bases__[0]  # the class dol's ``Wrap`` subclasses
 
 
 def _new_with_source(cls, source):
@@ -79,11 +90,11 @@ def _new_with_source(cls, source):
                 "Store whose wrapped class can't be determined. Build the store over "
                 "the connection first and wrap that instance instead."
             )
-        wrapped, wrapper = found
+        wrapped, delegator = found
         self = object.__new__(cls)
-        # what dol's generated __init__ does after building the delegate: the wrapper
+        # what dol's generated __init__ does after building the delegate: the delegator
         # class's own __init__ (which may set state of its own), not Store's directly
-        super(wrapper, self).__init__(_new_with_source(wrapped, source))
+        delegator.__init__(self, _new_with_source(wrapped, source))
         return self
     self = object.__new__(cls)
     self._source = source
@@ -274,6 +285,49 @@ def _translate_list_response_error(e: ResponseError, what: str):
     return None
 
 
+def _wrongtype_as_type_error(what):
+    """Decorator factory: a ``WRONGTYPE`` ``ResponseError`` raised by the method becomes the
+    ``TypeError`` that :func:`_translate_list_response_error` maps it to, whichever
+    operation met a key that holds something other than a list. Any other error passes
+    through untouched."""
+
+    def decorator(method):
+        @wraps(method)
+        def wrapper(self, *args, **kwargs):
+            try:
+                return method(self, *args, **kwargs)
+            except ResponseError as e:
+                translated = _translate_list_response_error(e, what)
+                if isinstance(translated, TypeError):
+                    raise translated from e
+                raise
+
+        return wrapper
+
+    return decorator
+
+
+def _normalising_bytes_likes(encode):
+    """``encode`` (or the identity) followed by ``bytes(...)`` for a bytes-like result.
+
+    redis-py would send a ``memoryview`` cast to ``'I'`` by its *length* rather than its
+    bytes; a bytes-like element is a redis string, as a top-level value is.
+    """
+    encode = encode or _identity
+
+    def encode_element(v):
+        v = encode(v)
+        return bytes(v) if isinstance(v, (bytearray, memoryview)) else v
+
+    return encode_element
+
+
+def _type_name(source, name):
+    """The redis type of ``name`` as bytes (``b'none'`` when it doesn't exist)."""
+    t = source.type(name)
+    return t.encode() if isinstance(t, str) else t
+
+
 # TODO: Redis list type is more of a linked-list than a list. Better subclass deque?
 class RedisList(MutableSequence):
     """
@@ -299,12 +353,14 @@ class RedisList(MutableSequence):
     def __init__(self, source, name, *, encode=None, decode=None):
         self._source = source
         self._name = name
-        self._encode = encode or _identity
+        self._encode = _normalising_bytes_likes(encode)
         self._decode = decode or _identity
 
+    @_wrongtype_as_type_error("RedisList length")
     def __len__(self):
         return self._source.llen(self._name)
 
+    @_wrongtype_as_type_error("RedisList access")
     def __getitem__(self, i):
         if isinstance(i, slice):
             return self._get_slice(i)
@@ -329,7 +385,13 @@ class RedisList(MutableSequence):
         n = max(1, int(self.iter_batch_size))
         start = 0
         while True:
-            batch = self._source.lrange(self._name, start, start + n - 1)
+            try:
+                batch = self._source.lrange(self._name, start, start + n - 1)
+            except ResponseError as e:  # a generator: the decorator can't wrap it
+                translated = _translate_list_response_error(e, "RedisList iteration")
+                if isinstance(translated, TypeError):
+                    raise translated from e
+                raise
             for v in batch:
                 yield self._decode(v)
             if len(batch) < n:
@@ -370,19 +432,35 @@ class RedisList(MutableSequence):
                 raise
             raise translated from e
 
+    @_wrongtype_as_type_error("RedisList append")
     def append(self, v):
         # rpush (not rpushx): appending to a not-yet-existing list creates it,
         # consistently with `extend`.
         self._source.rpush(self._name, self._encode(v))
 
+    @_wrongtype_as_type_error("RedisList extend")
     def extend(self, iterable):
         values = [self._encode(v) for v in iterable]
         if values:  # rpush with no values is a redis error
             self._source.rpush(self._name, *values)
 
     def clear(self):
-        self._source.delete(self._name)
+        """Delete the list. Like the other operations, refuses (``TypeError``) a key that
+        holds something else, which this handle must not destroy; the check and the
+        deletion are one WATCH/MULTI transaction."""
+        name = self._name
 
+        def _clear(pipe):
+            if _type_name(pipe, name) not in (RedisType.list, b"none"):
+                raise TypeError(
+                    "RedisList clear: the key holds a Redis value that is not a list"
+                )
+            pipe.multi()
+            pipe.delete(name)
+
+        self._source.transaction(_clear, name)
+
+    @_wrongtype_as_type_error("RedisList insert")
     def insert(self, i, v):
         """Insert ``v`` before position ``i`` (``list.insert`` semantics: ``i`` is clamped).
 
@@ -459,7 +537,7 @@ class RedisPersister(RedisCollection, RedisBytesPersister):
         if isinstance(v, (bytearray, memoryview)):
             v = bytes(v)  # bytes-like: a redis string, not a list of ints
         if isinstance(v, Iterable) and not isinstance(v, (str, bytes)):
-            encode = self._list_codec("list_encode") or _identity
+            encode = _normalising_bytes_likes(self._list_codec("list_encode"))
             values = [encode(x) for x in v]  # also consumes one-shot iterables
             if not values:
                 # Redis has no empty list (a list key with no elements doesn't exist).
