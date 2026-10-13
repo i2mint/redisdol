@@ -1,0 +1,26 @@
+redisdol.base
+=============
+
+.. automodule:: redisdol.base
+
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+   
+      store_from_source
+      store_from_sourced_object
+   
+   .. rubric:: Classes
+
+   .. autosummary::
+   
+      RedisBytesCollection
+      RedisBytesPersister
+      RedisBytesReader
+      RedisCollection
+      RedisFactories
+      RedisList
+      RedisPersister
+      RedisType
+   

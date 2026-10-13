@@ -1,0 +1,15 @@
+# redisdol
+
+> redis with a simple (dict-like or list-like) interface
+
+
+## Pages in this subsection
+
+- [redisdol](redisdol.html.md): redis with a simple (dict-like or list-like) interface
+- [redisdol.base](redisdol.base.html.md): Base objects for redisdol
+- [redisdol.stores](redisdol.stores.html.md): Ready made convenience Redis stores
+- [redisdol.util](redisdol.util.html.md): Utils for redisdol
+
+## Optional
+
+- [Top-level llms.txt](../llms.txt): Complete documentation index.

@@ -1,0 +1,22 @@
+# redisdol
+
+> redis with a simple (dict-like or list-like) interface
+
+
+## Pages
+
+- [redisdol](index.html.md): redis with a simple (dict-like or list-like) interface
+- [API reference](api.html.md): | &#96;redisdol&#96;   | redis with a simple (dict-like or list-like) interface   |
+- [redisdol](_autosummary/redisdol.html.md): redis with a simple (dict-like or list-like) interface
+- [redisdol.base](_autosummary/redisdol.base.html.md): Base objects for redisdol
+- [redisdol.stores](_autosummary/redisdol.stores.html.md): Ready made convenience Redis stores
+- [redisdol.util](_autosummary/redisdol.util.html.md): Utils for redisdol
+- [About this build](about-this-build.html.md): This documentation was built on &#42;&#42;2026-10-13 07:35 UTC&#42;&#42; from commit &lt;a href="https://github.com/i2m...
+
+## Optional
+
+- [redisdol.md](redisdol.md): Complete documentation in a single file.
+
+## Build
+
+- [build_info.json](build_info.json): build provenance (commit, version, tool versions, whether the docs match the package)

@@ -1,4 +1,0 @@
-redisdol.util
-=============
-.. automodule:: redisdol.util
-   :members:

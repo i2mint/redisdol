@@ -1,0 +1,12 @@
+redisdol.util
+=============
+
+.. automodule:: redisdol.util
+
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+   
+      cast_to_numeric_if_possible
+   
