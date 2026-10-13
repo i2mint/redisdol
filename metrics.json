@@ -1,7 +1,7 @@
 {
-  "collection_duration_seconds": 4.291345119476318,
-  "commit_message": "fix: store_from_source runs the wrapper class's own __init__ (review of #13)\n\nCo-Authored-By: Claude Sonnet 5.5 <noreply@anthropic.com>",
-  "commit_sha": "dac86363771b230e68c1355160af229d7bfd1473",
+  "collection_duration_seconds": 3.367642879486084,
+  "commit_message": "Merge 5ef56993b58cdf2ec503e8c05907a906f3276b5e into 98e8e034277430617ca4acd5780e50c33b54a74b",
+  "commit_sha": "fe1ac661392c849f25204a33880cd884ecf346e2",
   "metrics": {
     "coverage": {
       "branch_coverage": 0.0,
@@ -12,18 +12,18 @@
     },
     "umpyre_stats": {
       "comment_lines": 16978,
-      "comment_lines_ratio": 0.0520232630824197,
-      "docs_lines": 40144,
-      "empty_lines": 43001,
-      "empty_lines_ratio": 0.1317618291793574,
+      "comment_lines_ratio": 0.052019915741095366,
+      "docs_lines": 40149,
+      "empty_lines": 43004,
+      "empty_lines_ratio": 0.13176254308693988,
       "files_analyzed": 748,
-      "function_lines": 157704,
-      "function_lines_ratio": 0.4832298669542889,
-      "mean_lines_per_function": 14.308111050626021,
+      "function_lines": 157723,
+      "function_lines_ratio": 0.48325698965913444,
+      "mean_lines_per_function": 14.308536695999274,
       "num_classes": 2166,
-      "num_functions": 11022,
+      "num_functions": 11023,
       "pypi_version": "0.0.7",
-      "total_lines": 326354
+      "total_lines": 326375
     },
     "wily": {
       "cyclomatic_avg": 0.0,
@@ -34,14 +34,14 @@
     },
     "workflow_status": {
       "last_run_status": "success",
-      "last_success_timestamp": "2026-10-13T14:11:39Z",
+      "last_success_timestamp": "2026-10-13T14:15:01Z",
       "recent_failure_count": 0,
-      "run_url": "https://github.com/i2mint/redisdol/actions/runs/38411055741",
+      "run_url": "https://github.com/i2mint/redisdol/actions/runs/38411534678",
       "total_runs_analyzed": 10
     }
   },
   "python_version": "3.10",
   "schema_version": "1.0",
-  "timestamp": "2026-10-13T14:14:45.076838Z",
+  "timestamp": "2026-10-13T14:17:03.379477Z",
   "workflow_status": {}
 }
