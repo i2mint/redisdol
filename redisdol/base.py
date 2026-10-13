@@ -4,7 +4,7 @@ import operator
 import uuid
 from functools import wraps
 from collections.abc import Iterable
-from dol.base import Collection, KvReader, KvPersister
+from dol.base import Collection, KvReader, KvPersister, Store
 
 from redis import Redis
 from redis.exceptions import ResponseError
@@ -45,7 +45,39 @@ class RedisFactories:
         return cls.from_source(obj._source)
 
 
+def _wrapped_class_of(cls):
+    """The class a ``dol`` class-wrapper (``wrap_kvs``, ``KeyCodecs...``, ``filt_iter``)
+    delegates to, read from the wrapper's ``__init__`` closure (``None`` if it has none)."""
+    init = getattr(cls, "__init__", None)
+    code, cells = getattr(init, "__code__", None), getattr(init, "__closure__", None)
+    if code is None or not cells:
+        return None
+    free = dict(zip(code.co_freevars, cells))
+    if "wrapped" not in free or "delegation_attr" not in free:
+        return None
+    try:
+        wrapped, attr = free["wrapped"].cell_contents, free["delegation_attr"].cell_contents
+    except ValueError:  # empty cell
+        return None
+    return (wrapped, attr) if isinstance(wrapped, type) else None
+
+
 def _new_with_source(cls, source):
+    if issubclass(cls, Store):
+        # A dol-wrapped class: its instances delegate to an instance of the wrapped
+        # class, so build that one over ``source`` and wrap it (i2mint/redisdol#10).
+        found = _wrapped_class_of(cls)
+        if found is None:
+            raise TypeError(
+                f"Can't build {cls.__name__} over an existing connection: it is a dol "
+                "Store whose wrapped class can't be determined. Build the store over "
+                "the connection first and wrap that instance instead."
+            )
+        wrapped, attr = found
+        self = object.__new__(cls)
+        Store.__init__(self, _new_with_source(wrapped, source))
+        assert attr == "store"
+        return self
     self = object.__new__(cls)
     self._source = source
     return self
@@ -54,8 +86,10 @@ def _new_with_source(cls, source):
 def store_from_source(source, cls=None):
     """Make a store of type ``cls`` (default `RedisPersister`) over a ``Redis`` connection.
 
-    The returned store is a plain, *unwrapped* ``cls`` instance: it sees the whole
-    keyspace of ``source``. Apply any key/value codecs to the result yourself.
+    The returned store is a plain ``cls`` instance: it sees the whole keyspace of
+    ``source``. Apply any key/value codecs to the result yourself. ``cls`` may be a class
+    already wrapped with ``dol`` (e.g. `RedisStoreWithNumericLists`): its wrapped class is
+    built over ``source`` and wrapped as usual.
 
     >>> from fakeredis import FakeRedis
     >>> s = store_from_source(FakeRedis())
