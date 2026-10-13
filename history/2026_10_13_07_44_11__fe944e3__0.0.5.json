@@ -1,0 +1,47 @@
+{
+  "collection_duration_seconds": 3.9296557903289795,
+  "commit_message": "Missing keys raise KeyError; _convert_numeric_list passes non-lists through (#9)\n\n* Raise KeyError for missing keys; pass non-lists through _convert_numeric_list\n\nFixes #4, fixes #5\n\nCo-Authored-By: Claude Sonnet 5.5 <noreply@anthropic.com>\n\n* RedisCollection: handle decode_responses types; raise TypeError for unsupported redis types\n\nCo-Authored-By: Claude Sonnet 5.5 <noreply@anthropic.com>\n\n---------\n\nCo-authored-by: Claude Sonnet 5.5 <noreply@anthropic.com>",
+  "commit_sha": "fe944e35d27bde646e0cf5635068d1e8f2abd9ec",
+  "metrics": {
+    "coverage": {
+      "branch_coverage": 0.0,
+      "error": "No coverage file found",
+      "line_coverage": 0.0,
+      "statements_covered": 0,
+      "statements_total": 0
+    },
+    "umpyre_stats": {
+      "comment_lines": 16967,
+      "comment_lines_ratio": 0.052052239378330534,
+      "docs_lines": 40032,
+      "empty_lines": 42945,
+      "empty_lines_ratio": 0.13174889020465638,
+      "files_analyzed": 748,
+      "function_lines": 157311,
+      "function_lines_ratio": 0.48260681492571195,
+      "mean_lines_per_function": 14.294502498864153,
+      "num_classes": 2166,
+      "num_functions": 11005,
+      "pypi_version": "0.0.5",
+      "total_lines": 325961
+    },
+    "wily": {
+      "cyclomatic_avg": 0.0,
+      "error": "wily report failed: Usage: wily report [OPTIONS] FILE [METRICS]...\nTry 'wily report --help' for help.\n\nError: Invalid value for '-f' / '--format': 'json' is not one of 'CONSOLE', 'HTML'.\n",
+      "files_analyzed": 0,
+      "maintainability_index": 0.0,
+      "total_loc": 0
+    },
+    "workflow_status": {
+      "last_run_status": "success",
+      "last_success_timestamp": "2026-10-13T07:42:49Z",
+      "recent_failure_count": 0,
+      "run_url": "https://github.com/i2mint/redisdol/actions/runs/38364292025",
+      "total_runs_analyzed": 10
+    }
+  },
+  "python_version": "3.10",
+  "schema_version": "1.0",
+  "timestamp": "2026-10-13T07:44:11.313568Z",
+  "workflow_status": {}
+}
