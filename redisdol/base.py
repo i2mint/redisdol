@@ -79,7 +79,10 @@ class RedisBytesCollection(Collection):
         yield from self._source.keys()
 
     def __getitem__(self, k):
-        return self._source.get(k)
+        v = self._source.get(k)
+        if v is None:
+            raise KeyError(k)
+        return v
 
     def __contains__(self, k):
         return k in self._source
@@ -90,7 +93,10 @@ class RedisBytesCollection(Collection):
 
 class RedisBytesReader(RedisBytesCollection, KvReader):
     def __getitem__(self, k):
-        return self._source.get(k)
+        v = self._source.get(k)
+        if v is None:  # redis GET answers nil for a missing key; Mapping says KeyError
+            raise KeyError(k)
+        return v
 
 
 class RedisBytesPersister(RedisBytesReader, KvPersister):
@@ -299,9 +305,14 @@ class RedisCollection(RedisBytesCollection):
     def __getitem__(self, k):
         val_type = self._source.type(k)
         if val_type == b"string":
-            return self._source.get(k)
+            v = self._source.get(k)
+            if v is None:  # expired/deleted between TYPE and GET
+                raise KeyError(k)
+            return v
         elif val_type == b"list":
             return self._mk_list(k)
+        elif val_type == b"none":
+            raise KeyError(k)
 
 
 class RedisPersister(RedisCollection, RedisBytesPersister):
