@@ -303,3 +303,18 @@ def test_store_assign_replaces_list_and_accepts_generators_and_numbers():
     assert list(s["k"]) == [b"x", b"y", b"z"]
     s["n"] = 42
     assert s["n"] == b"42"
+
+
+def test_redislist_non_integer_index_is_typeerror(monkeypatch):
+    l = _rl("ab")
+    for bad in ("x", 1.5, None):
+        with pytest.raises(TypeError):
+            l[bad]
+        with pytest.raises(TypeError):
+            l[bad] = "v"
+        with pytest.raises(TypeError):
+            del l[bad]
+        with pytest.raises(TypeError):
+            l.insert(bad, "v")
+    monkeypatch.setattr(RedisList, "iter_batch_size", 0)  # degenerate: still terminates
+    assert _dec(l) == ["a", "b"]

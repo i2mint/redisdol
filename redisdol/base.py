@@ -1,5 +1,6 @@
 """Base objects for redisdol"""
 
+import operator
 import uuid
 from functools import wraps
 from collections.abc import Iterable
@@ -248,6 +249,7 @@ class RedisList(MutableSequence):
     def __getitem__(self, i):
         if isinstance(i, slice):
             return self._get_slice(i)
+        i = operator.index(i)  # TypeError for non-integers, like list
         v = self._source.lindex(self._name, i)
         if v is None:  # redis answers nil for an out of range index
             raise IndexError("RedisList index out of range")
@@ -265,7 +267,7 @@ class RedisList(MutableSequence):
 
     def __iter__(self):
         # One snapshot per batch (rather than one round trip per element)
-        n = self.iter_batch_size
+        n = max(1, int(self.iter_batch_size))
         start = 0
         while True:
             batch = self._source.lrange(self._name, start, start + n - 1)
@@ -278,6 +280,7 @@ class RedisList(MutableSequence):
     def __setitem__(self, i, v):
         if isinstance(i, slice):
             raise NotImplementedError("Slice assignment is not supported")
+        i = operator.index(i)
         try:
             self._source.lset(self._name, i, self._encode(v))
         except ResponseError as e:  # redis: 'no such key' / 'index out of range'
@@ -292,6 +295,7 @@ class RedisList(MutableSequence):
         """
         if isinstance(i, slice):
             raise NotImplementedError("Slice deletion is not supported")
+        i = operator.index(i)
         sentinel = _new_sentinel()
         try:
             with self._source.pipeline(transaction=True) as pipe:
@@ -322,6 +326,7 @@ class RedisList(MutableSequence):
         sentinel, ``v`` is inserted before it, and the original is put back. This
         runs in a WATCH/MULTI transaction (retried if the list changes meanwhile).
         """
+        i = operator.index(i)
         value = self._encode(v)
         name = self._name
 
