@@ -31,6 +31,9 @@ _DFLT_REDIS_PORT = 6379
 #: doctests are genuinely server-free.
 _REDIS_FREE_DOCTEST_STEMS = frozenset({"util"})
 
+#: Suffix of test modules that run against ``fakeredis`` (no server needed).
+_FAKEREDIS_TEST_SUFFIX = "_fakeredis"
+
 
 def _redis_available(*, timeout_s=0.5):
     """Return ``True`` iff a Redis server accepts a TCP connection quickly."""
@@ -55,7 +58,7 @@ def _requires_redis(item):
     """
     path = pathlib.Path(str(getattr(item, "path", None) or item.fspath))
     if "tests" in path.parts:
-        return True
+        return not path.stem.endswith(_FAKEREDIS_TEST_SUFFIX)
     return path.stem not in _REDIS_FREE_DOCTEST_STEMS
 
 
