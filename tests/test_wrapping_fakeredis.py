@@ -172,3 +172,134 @@ def test_unsupported_redis_type_raises_typeerror_not_none():
     assert "h" in s
     with pytest.raises(TypeError, match="hash"):
         s["h"]
+
+
+# -- RedisList: MutableSequence contract (redisdol#6, #7) ----------------------------
+
+
+def _rl(items=(), **kw):
+    l = RedisList(FakeRedis(), "l", **kw)
+    l.extend(items)
+    return l
+
+
+def _dec(l):
+    return [bytes(x).decode() for x in l]
+
+
+@pytest.mark.parametrize(
+    "idx",
+    [(None, None), (1, 0), (0, 0), (1, 3), (-2, None), (None, -1), (2, 99), (5, 9), (3, 1)],
+)
+def test_redislist_slices_match_python_list(idx):
+    ref = list("abcd")
+    l = _rl(ref)
+    sl = slice(*idx)
+    assert _dec(l[sl]) == ref[sl]
+
+
+def test_redislist_stepped_slices_match_python_list():
+    ref = list("abcdef")
+    l = _rl(ref)
+    for sl in (slice(None, None, 2), slice(None, None, -1), slice(1, 5, 2)):
+        assert _dec(l[sl]) == ref[sl]
+
+
+def test_redislist_index_errors():
+    l = _rl("ab")
+    assert l[-1] == b"b"
+    for bad in (2, 99, -3):
+        with pytest.raises(IndexError):
+            l[bad]
+        with pytest.raises(IndexError):
+            l[bad] = "x"
+        with pytest.raises(IndexError):
+            del l[bad]
+    with pytest.raises(IndexError):
+        RedisList(FakeRedis(), "nokey")[0]
+    assert _dec(l) == ["a", "b"]  # failed ops left it untouched
+
+
+def test_redislist_index_and_contains_terminate():
+    l = _rl("abc")
+    assert l.index(b"c") == 2
+    with pytest.raises(ValueError):
+        l.index(b"absent")
+    assert b"a" in l and b"z" not in l
+
+
+def test_redislist_delitem_with_duplicates():
+    l = _rl("abab")
+    del l[2]
+    assert _dec(l) == ["a", "b", "b"]
+    del l[-1]
+    assert _dec(l) == ["a", "b"]
+    del l[0]
+    assert _dec(l) == ["b"]
+    del l[0]
+    assert len(l) == 0
+
+
+def test_redislist_insert_matches_python_list_including_duplicates():
+    import random
+
+    rnd = random.Random(0)
+    for _ in range(50):
+        ref = [rnd.choice("ab") for _ in range(rnd.randrange(0, 6))]
+        l = _rl(ref)
+        i = rnd.randrange(-8, 9)
+        ref.insert(i, "X")
+        l.insert(i, "X")
+        assert _dec(l) == ref, (i,)
+
+
+def test_redislist_insert_into_missing_list_and_codec():
+    l = RedisList(FakeRedis(), "new", encode=str.upper, decode=bytes.decode)
+    l.insert(0, "a")
+    l.insert(0, "b")
+    l.insert(1, "c")
+    assert list(l) == ["B", "C", "A"]
+
+
+def test_redislist_mutablesequence_mixins():
+    l = _rl("abc")
+    assert l.pop() == b"c"
+    l.remove(b"a")
+    assert _dec(l) == ["b"]
+    l += [b"x", b"y"]
+    l.reverse()
+    assert _dec(l) == ["y", "x", "b"]
+    l.clear()
+    assert len(l) == 0 and not l._source.exists("l")
+
+
+def test_redislist_iter_batches(monkeypatch):
+    l = _rl([str(i) for i in range(25)])
+    monkeypatch.setattr(RedisList, "iter_batch_size", 10)
+    assert _dec(l) == [str(i) for i in range(25)]
+    assert len(list(_rl([str(i) for i in range(20)]))) == 20
+
+
+def test_redislist_slice_assign_and_delete_unsupported():
+    l = _rl("abc")
+    with pytest.raises(NotImplementedError):
+        l[0:1] = ["x"]
+    with pytest.raises(NotImplementedError):
+        del l[0:1]
+
+
+def test_store_assign_empty_list_keeps_existing_value():
+    s = _store()
+    s["k"] = ["a", "b"]
+    with pytest.raises(ValueError):
+        s["k"] = []
+    assert list(s["k"]) == [b"a", b"b"]
+
+
+def test_store_assign_replaces_list_and_accepts_generators_and_numbers():
+    s = _store()
+    s["k"] = ["a", "b"]
+    s["k"] = (x for x in "xyz")
+    assert list(s["k"]) == [b"x", b"y", b"z"]
+    s["n"] = 42
+    assert s["n"] == b"42"

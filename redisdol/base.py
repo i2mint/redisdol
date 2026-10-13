@@ -1,14 +1,21 @@
 """Base objects for redisdol"""
 
+import uuid
 from functools import wraps
 from collections.abc import Iterable
 from dol.base import Collection, KvReader, KvPersister
 
 from redis import Redis
+from redis.exceptions import ResponseError
 
 
 def _identity(x):
     return x
+
+
+def _new_sentinel():
+    """A value that can't collide with real data (used to address a list position)."""
+    return b"__redisdol_sentinel__" + uuid.uuid4().hex.encode()
 
 
 class RedisType:
@@ -226,6 +233,9 @@ class RedisList(MutableSequence):
     ['Z', 'B', 'C']
     """
 
+    #: Number of elements fetched per round trip when iterating.
+    iter_batch_size = 1000
+
     def __init__(self, source, name, *, encode=None, decode=None):
         self._source = source
         self._name = name
@@ -236,36 +246,60 @@ class RedisList(MutableSequence):
         return self._source.llen(self._name)
 
     def __getitem__(self, i):
-        if isinstance(i, int):
-            v = self._source.lindex(self._name, i)
-            return v if v is None else self._decode(v)
-        else:  # assume it's a slice, and modify it to conform to inclusive Redis slicing
-            try:
-                if i.step is not None:
-                    raise NotImplementedError(
-                        "Slicing is so far only implemented without step"
-                    )
-                return [
-                    self._decode(v)
-                    for v in self._source.lrange(self._name, i.start or 0, i.stop - 1)
-                ]
-            except AttributeError:
-                raise KeyError(f"Index should be an integer or a slice object. Was {i}")
+        if isinstance(i, slice):
+            return self._get_slice(i)
+        v = self._source.lindex(self._name, i)
+        if v is None:  # redis answers nil for an out of range index
+            raise IndexError("RedisList index out of range")
+        return self._decode(v)
+
+    def _get_slice(self, sl):
+        start, stop, step = sl.indices(len(self))
+        if step == 1:
+            if stop <= start:
+                return []
+            values = self._source.lrange(self._name, start, stop - 1)
+        else:
+            values = self._source.lrange(self._name, 0, -1)[sl]
+        return [self._decode(v) for v in values]
 
     def __iter__(self):
-        # TODO: Find a more efficient way to do this.
-        #   In batches perhaps? But what's the optimal batch size?
-        #   async fetching of the next value/batch while yielding the one that's already fetched?
-        for i in range(len(self)):
-            yield self[i]
+        # One snapshot per batch (rather than one round trip per element)
+        n = self.iter_batch_size
+        start = 0
+        while True:
+            batch = self._source.lrange(self._name, start, start + n - 1)
+            for v in batch:
+                yield self._decode(v)
+            if len(batch) < n:
+                return
+            start += n
 
     def __setitem__(self, i, v):
-        return self._source.lset(self._name, i, self._encode(v))
+        if isinstance(i, slice):
+            raise NotImplementedError("Slice assignment is not supported")
+        try:
+            self._source.lset(self._name, i, self._encode(v))
+        except ResponseError as e:  # redis: 'no such key' / 'index out of range'
+            raise IndexError("RedisList assignment index out of range") from e
 
-    def __delitem__(self, i):  # TODO: Implement
-        raise NotImplementedError(
-            "Don't know how to (efficiently/directly) delete a single middle item."
-        )
+    def __delitem__(self, i):
+        """Delete the element at position ``i`` (atomically).
+
+        LREM removes by *value*, so the element is first overwritten with a unique
+        sentinel, then that sentinel is removed, in one MULTI/EXEC transaction
+        (correct even when the list holds duplicate values).
+        """
+        if isinstance(i, slice):
+            raise NotImplementedError("Slice deletion is not supported")
+        sentinel = _new_sentinel()
+        try:
+            with self._source.pipeline(transaction=True) as pipe:
+                pipe.lset(self._name, i, sentinel)
+                pipe.lrem(self._name, 1, sentinel)
+                pipe.execute()
+        except ResponseError as e:
+            raise IndexError("RedisList assignment index out of range") from e
 
     def append(self, v):
         # rpush (not rpushx): appending to a not-yet-existing list creates it,
@@ -277,8 +311,36 @@ class RedisList(MutableSequence):
         if values:  # rpush with no values is a redis error
             self._source.rpush(self._name, *values)
 
-    def insert(self, i, v):  # TODO: Implement
-        raise NotImplementedError("Might have to do with self._source.linsert")
+    def clear(self):
+        self._source.delete(self._name)
+
+    def insert(self, i, v):
+        """Insert ``v`` before position ``i`` (``list.insert`` semantics: ``i`` is clamped).
+
+        LINSERT is relative to a *value* (wrong with duplicates), so the element
+        currently at the target position is temporarily replaced by a unique
+        sentinel, ``v`` is inserted before it, and the original is put back. This
+        runs in a WATCH/MULTI transaction (retried if the list changes meanwhile).
+        """
+        value = self._encode(v)
+        name = self._name
+
+        def _insert(pipe):
+            n = pipe.llen(name)
+            idx = i + n if i < 0 else i
+            idx = min(max(idx, 0), n)
+            if idx == n:
+                pipe.multi()
+                pipe.rpush(name, value)
+                return
+            original = pipe.lindex(name, idx)
+            sentinel = _new_sentinel()
+            pipe.multi()
+            pipe.lset(name, idx, sentinel)
+            pipe.linsert(name, "BEFORE", sentinel, value)
+            pipe.lset(name, idx + 1, original)
+
+        self._source.transaction(_insert, name)
 
 
 # TODO: Consider if should move to stores
@@ -324,10 +386,19 @@ class RedisCollection(RedisBytesCollection):
 
 class RedisPersister(RedisCollection, RedisBytesPersister):
     def __setitem__(self, k, v):
-        if isinstance(v, (str, bytes)):
-            return super().__setitem__(k, v)
-        elif isinstance(v, Iterable):
-            if k in self:
-                del self[k]
+        if isinstance(v, Iterable) and not isinstance(v, (str, bytes)):
             encode = self._list_codec("list_encode") or _identity
-            return self._source.rpush(k, *map(encode, v))
+            values = [encode(x) for x in v]  # also consumes one-shot iterables
+            if not values:
+                # Redis has no empty list (a list key with no elements doesn't exist).
+                # Refuse *before* touching the existing value, rather than lose it.
+                raise ValueError(
+                    f"Can't store an empty list at {k!r}: Redis has no empty lists. "
+                    "Use `del store[k]` to remove the key."
+                )
+            with self._source.pipeline(transaction=True) as pipe:  # atomic replace
+                pipe.delete(k)
+                pipe.rpush(k, *values)
+                pipe.execute()
+        else:  # str, bytes, numbers...: stored as a redis string
+            return super().__setitem__(k, v)
