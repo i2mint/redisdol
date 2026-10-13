@@ -1,32 +1,32 @@
 {
   "schema_version": 1,
-  "built_at": "2026-10-13T07:44:42Z",
+  "built_at": "2026-10-13T08:00:41Z",
   "package": {
     "name": "redisdol",
-    "version": "0.0.5",
+    "version": "0.0.6",
     "display_name": "redisdol",
     "source": "pyproject.toml"
   },
   "git": {
     "available": true,
-    "commit": "fe944e35d27bde646e0cf5635068d1e8f2abd9ec",
-    "short_commit": "fe944e3",
+    "commit": "f8caea06a0bad2a5ea2b97a1bd7797a2493118b5",
+    "short_commit": "f8caea0",
     "branch": "master",
     "tags": [],
     "dirty": false,
     "remote_url": "https://github.com/i2mint/redisdol",
-    "commit_url": "https://github.com/i2mint/redisdol/commit/fe944e35d27bde646e0cf5635068d1e8f2abd9ec",
+    "commit_url": "https://github.com/i2mint/redisdol/commit/f8caea06a0bad2a5ea2b97a1bd7797a2493118b5",
     "error": null
   },
   "ci": {
     "provider": "github",
     "repository": "i2mint/redisdol",
-    "sha": "fe944e35d27bde646e0cf5635068d1e8f2abd9ec",
+    "sha": "f8caea06a0bad2a5ea2b97a1bd7797a2493118b5",
     "sha_in_history": true,
     "ref": "refs/heads/master",
     "ref_name": "master",
-    "run_id": "38364435513",
-    "run_url": "https://github.com/i2mint/redisdol/actions/runs/38364435513",
+    "run_id": "38366171280",
+    "run_url": "https://github.com/i2mint/redisdol/actions/runs/38366171280",
     "server_url": "https://github.com"
   },
   "tools": {
@@ -56,20 +56,18 @@
   },
   "site": {
     "modules_documented": 4,
-    "objects_documented": 17
+    "objects_documented": 19
   },
   "pypi": {
     "checked": true,
     "latest": "0.0.6",
-    "relation": "behind",
+    "relation": "same",
     "error": null
   },
-  "reproduce": "git clone https://github.com/i2mint/redisdol && cd redisdol\ngit checkout fe944e35d27bde646e0cf5635068d1e8f2abd9ec\npip install \"epythet==0.2.15\"\nepythet quickstart . --ignore tests/ scrap/ examples/",
+  "reproduce": "git clone https://github.com/i2mint/redisdol && cd redisdol\ngit checkout f8caea06a0bad2a5ea2b97a1bd7797a2493118b5\npip install \"epythet==0.2.15\"\nepythet quickstart . --ignore tests/ scrap/ examples/",
   "warnings": [],
   "alignment": {
-    "aligned": false,
-    "notes": [
-      "The documented version (0.0.5) is behind the latest release on PyPI (0.0.6): `pip install redisdol` gives newer code than these docs describe."
-    ]
+    "aligned": true,
+    "notes": []
   }
 }

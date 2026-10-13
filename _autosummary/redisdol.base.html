@@ -98,8 +98,10 @@ data-aria-dark="Switch to auto color mode">
 </li>
 <li><a class="reference internal" href="#redisdol.base.RedisList"><code class="docutils literal notranslate"><span class="pre">RedisList</span></code></a><ul>
 <li><a class="reference internal" href="#redisdol.base.RedisList.append"><code class="docutils literal notranslate"><span class="pre">RedisList.append()</span></code></a></li>
+<li><a class="reference internal" href="#redisdol.base.RedisList.clear"><code class="docutils literal notranslate"><span class="pre">RedisList.clear()</span></code></a></li>
 <li><a class="reference internal" href="#redisdol.base.RedisList.extend"><code class="docutils literal notranslate"><span class="pre">RedisList.extend()</span></code></a></li>
 <li><a class="reference internal" href="#redisdol.base.RedisList.insert"><code class="docutils literal notranslate"><span class="pre">RedisList.insert()</span></code></a></li>
+<li><a class="reference internal" href="#redisdol.base.RedisList.iter_batch_size"><code class="docutils literal notranslate"><span class="pre">RedisList.iter_batch_size</span></code></a></li>
 </ul>
 </li>
 <li><a class="reference internal" href="#redisdol.base.RedisPersister"><code class="docutils literal notranslate"><span class="pre">RedisPersister</span></code></a></li>
@@ -311,6 +313,11 @@ into a handle it returns, so pass the element codec here (see
 </dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="redisdol.base.RedisList.clear">
+<span class="sig-name descname"><span class="pre">clear</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span> <span class="pre">--</span> <span class="pre">remove</span> <span class="pre">all</span> <span class="pre">items</span> <span class="pre">from</span> <span class="pre">S</span></span></span><a class="reference internal" href="../_modules/redisdol/base.html#RedisList.clear"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#redisdol.base.RedisList.clear" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="redisdol.base.RedisList.extend">
 <span class="sig-name descname"><span class="pre">extend</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">iterable</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/redisdol/base.html#RedisList.extend"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#redisdol.base.RedisList.extend" title="Link to this definition">#</a></dt>
 <dd><p>S.extend(iterable) – extend sequence by appending elements from the iterable</p>
@@ -319,7 +326,17 @@ into a handle it returns, so pass the element codec here (see
 <dl class="py method">
 <dt class="sig sig-object py" id="redisdol.base.RedisList.insert">
 <span class="sig-name descname"><span class="pre">insert</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">i</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">v</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/redisdol/base.html#RedisList.insert"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#redisdol.base.RedisList.insert" title="Link to this definition">#</a></dt>
-<dd><p>S.insert(index, value) – insert value before index</p>
+<dd><p>Insert <code class="docutils literal notranslate"><span class="pre">v</span></code> before position <code class="docutils literal notranslate"><span class="pre">i</span></code> (<code class="docutils literal notranslate"><span class="pre">list.insert</span></code> semantics: <code class="docutils literal notranslate"><span class="pre">i</span></code> is clamped).</p>
+<p>LINSERT is relative to a <em>value</em> (wrong with duplicates), so the element
+currently at the target position is temporarily replaced by a unique
+sentinel, <code class="docutils literal notranslate"><span class="pre">v</span></code> is inserted before it, and the original is put back. This
+runs in a WATCH/MULTI transaction (retried if the list changes meanwhile).</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="redisdol.base.RedisList.iter_batch_size">
+<span class="sig-name descname"><span class="pre">iter_batch_size</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">1000</span></span><a class="headerlink" href="#redisdol.base.RedisList.iter_batch_size" title="Link to this definition">#</a></dt>
+<dd><p>Number of elements fetched per round trip when iterating.</p>
 </dd></dl>
 
 </dd></dl>
@@ -394,7 +411,7 @@ keyspace of <code class="docutils literal notranslate"><span class="pre">source<
     </div>
   </div>
 </footer>
-      <script src="../_static/documentation_options.js?v=282f96c0"></script>
+      <script src="../_static/documentation_options.js?v=1fd71caa"></script>
       <script src="../_static/doctools.js?v=fd6eb6e6"></script>
       <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script src="../_static/clipboard.min.js?v=a7894cd8"></script>

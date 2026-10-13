@@ -1,4 +1,4 @@
-> built 2026-10-13 07:44 UTC from fe944e3 (master) · redisdol 0.0.5. Details: build_info.json
+> built 2026-10-13 08:00 UTC from f8caea0 (master) · redisdol 0.0.6. Details: build_info.json
 
 # index.html.md
 
@@ -185,13 +185,24 @@ into a handle it returns, so pass the element codec here (see
 
 S.append(value) – append value to the end of the sequence
 
+#### clear() → None -- remove all items from S
+
 #### extend(iterable)
 
 S.extend(iterable) – extend sequence by appending elements from the iterable
 
 #### insert(i, v)
 
-S.insert(index, value) – insert value before index
+Insert `v` before position `i` (`list.insert` semantics: `i` is clamped).
+
+LINSERT is relative to a *value* (wrong with duplicates), so the element
+currently at the target position is temporarily replaced by a unique
+sentinel, `v` is inserted before it, and the original is put back. This
+runs in a WATCH/MULTI transaction (retried if the list changes meanwhile).
+
+#### iter_batch_size *= 1000*
+
+Number of elements fetched per round trip when iterating.
 
 ### *class* redisdol.base.RedisPersister(host='localhost', port=6379, db=0, password=None, socket_timeout=5, socket_connect_timeout=5, socket_read_size=32768, socket_keepalive=True, socket_keepalive_options=<object object>, connection_pool=None, unix_socket_path=None, encoding='utf-8', encoding_errors='strict', decode_responses=False, retry_on_timeout=False, retry=<redis.retry.Retry object>, retry_on_error=None, ssl=False, ssl_keyfile=None, ssl_certfile=None, ssl_cert_reqs='required', ssl_include_verify_flags=None, ssl_exclude_verify_flags=None, ssl_ca_certs=None, ssl_ca_path=None, ssl_ca_data=None, ssl_check_hostname=True, ssl_password=None, ssl_validate_ocsp=False, ssl_validate_ocsp_stapled=False, ssl_ocsp_context=None, ssl_ocsp_expected_cert=None, ssl_min_version=None, ssl_ciphers=None, max_connections=None, single_connection_client=False, health_check_interval=0, client_name=None, lib_name=<object object>, lib_version=<object object>, driver_info=<object object>, username=None, redis_connect_func=None, credential_provider=None, protocol=None, legacy_responses=True, cache=None, cache_config=None, event_dispatcher=None, maint_notifications_config=None, oss_cluster_maint_notifications_handler=None)
 
@@ -317,18 +328,16 @@ Utils for redisdol
 
 # About this build
 
-This documentation was built on **2026-10-13 07:44 UTC** from commit <a href="https://github.com/i2mint/redisdol/commit/fe944e35d27bde646e0cf5635068d1e8f2abd9ec"><code>fe944e3</code></a> on branch <code>master</code>, for **redisdol 0.0.5** (from <code>pyproject.toml</code>).
+This documentation was built on **2026-10-13 08:00 UTC** from commit <a href="https://github.com/i2mint/redisdol/commit/f8caea06a0bad2a5ea2b97a1bd7797a2493118b5"><code>f8caea0</code></a> on branch <code>master</code>, for **redisdol 0.0.6** (from <code>pyproject.toml</code>).
 
-#### WARNING
-The documentation and the package may be misaligned:
-
-- The documented version (0.0.5) is behind the latest release on PyPI (0.0.6): `pip install redisdol` gives newer code than these docs describe.
+#### NOTE
+Nothing suggests a mismatch: the tree was clean at the commit above, and the documented version is the one on PyPI.
 
 ## Source
 
 |                     |                                                                                                                                                        |
 |---------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------|
-| Commit              | <a href="https://github.com/i2mint/redisdol/commit/fe944e35d27bde646e0cf5635068d1e8f2abd9ec"><code>fe944e35d27bde646e0cf5635068d1e8f2abd9ec</code></a> |
+| Commit              | <a href="https://github.com/i2mint/redisdol/commit/f8caea06a0bad2a5ea2b97a1bd7797a2493118b5"><code>f8caea06a0bad2a5ea2b97a1bd7797a2493118b5</code></a> |
 | Branch              | <code>master</code>                                                                                                                                    |
 | Tags at this commit | none                                                                                                                                                   |
 | Working tree        | clean                                                                                                                                                  |
@@ -339,9 +348,9 @@ The documentation and the package may be misaligned:
 |              |                                                                                            |
 |--------------|--------------------------------------------------------------------------------------------|
 | Repository   | <code>i2mint/redisdol</code>                                                               |
-| Run          | <a href="https://github.com/i2mint/redisdol/actions/runs/38364435513">38364435513</a>      |
+| Run          | <a href="https://github.com/i2mint/redisdol/actions/runs/38366171280">38366171280</a>      |
 | Ref          | <code>refs/heads/master</code>                                                             |
-| Event commit | <code>fe944e35d27bde646e0cf5635068d1e8f2abd9ec</code> (in the history of the built commit) |
+| Event commit | <code>f8caea06a0bad2a5ea2b97a1bd7797a2493118b5</code> (in the history of the built commit) |
 
 ## Tools
 
@@ -366,13 +375,13 @@ The documentation and the package may be misaligned:
 
 ## Package on PyPI
 
-Latest release: <a href="https://pypi.org/project/redisdol/0.0.6/">0.0.6</a>, newer than the documented version (0.0.5).
+Latest release: <a href="https://pypi.org/project/redisdol/0.0.6/">0.0.6</a>, the same as the documented version.
 
 ## Reproduce
 
 ```bash
 git clone https://github.com/i2mint/redisdol && cd redisdol
-git checkout fe944e35d27bde646e0cf5635068d1e8f2abd9ec
+git checkout f8caea06a0bad2a5ea2b97a1bd7797a2493118b5
 pip install "epythet==0.2.15"
 epythet quickstart . --ignore tests/ scrap/ examples/
 ```
