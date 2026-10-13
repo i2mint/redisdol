@@ -18,8 +18,14 @@ Redis store that converts lists of numeric strings to lists of numbers.
 >>> s['__test_numeric_list'] = [1,-2,-3.0, 4e-23, 'not_a_number']
 >>> s['__test_numeric_list']
 [1, -2, -3.0, 4e-23, b'not_a_number']
->>> del s['__test_numeric_list']
+>>> s['__test_str'] = 'hello'
+>>> s['__test_str']  # non-list values pass through (they used to come back as None)
+b'hello'
+>>> del s['__test_numeric_list'], s['__test_str']
 ```
+
+Note that a list comes back as a detached python `list` (a snapshot): mutating
+it does not write through to Redis, unlike the `RedisList` handle of `RedisPersister`.
 
 #### write_kwargs
 

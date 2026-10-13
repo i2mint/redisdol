@@ -148,9 +148,14 @@ data-aria-dark="Switch to auto color mode">
 </span><span data-line="2"><span class="gp">&gt;&gt;&gt; </span><span class="n">s</span><span class="p">[</span><span class="s1">'__test_numeric_list'</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="o">-</span><span class="mi">2</span><span class="p">,</span><span class="o">-</span><span class="mf">3.0</span><span class="p">,</span> <span class="mf">4e-23</span><span class="p">,</span> <span class="s1">'not_a_number'</span><span class="p">]</span>
 </span><span data-line="3"><span class="gp">&gt;&gt;&gt; </span><span class="n">s</span><span class="p">[</span><span class="s1">'__test_numeric_list'</span><span class="p">]</span>
 </span><span data-line="4"><span class="go">[1, -2, -3.0, 4e-23, b'not_a_number']</span>
-</span><span data-line="5"><span class="gp">&gt;&gt;&gt; </span><span class="k">del</span> <span class="n">s</span><span class="p">[</span><span class="s1">'__test_numeric_list'</span><span class="p">]</span>
+</span><span data-line="5"><span class="gp">&gt;&gt;&gt; </span><span class="n">s</span><span class="p">[</span><span class="s1">'__test_str'</span><span class="p">]</span> <span class="o">=</span> <span class="s1">'hello'</span>
+</span><span data-line="6"><span class="gp">&gt;&gt;&gt; </span><span class="n">s</span><span class="p">[</span><span class="s1">'__test_str'</span><span class="p">]</span>  <span class="c1"># non-list values pass through (they used to come back as None)</span>
+</span><span data-line="7"><span class="go">b'hello'</span>
+</span><span data-line="8"><span class="gp">&gt;&gt;&gt; </span><span class="k">del</span> <span class="n">s</span><span class="p">[</span><span class="s1">'__test_numeric_list'</span><span class="p">],</span> <span class="n">s</span><span class="p">[</span><span class="s1">'__test_str'</span><span class="p">]</span>
 </span></pre></div>
 </div>
+<p>Note that a list comes back as a detached python <code class="docutils literal notranslate"><span class="pre">list</span></code> (a snapshot): mutating
+it does not write through to Redis, unlike the <code class="code docutils literal notranslate"><span class="pre">RedisList</span></code> handle of <code class="code docutils literal notranslate"><span class="pre">RedisPersister</span></code>.</p>
 <dl class="field-list simple">
 </dl>
 <dl class="py attribute">
@@ -217,7 +222,7 @@ for k, v in iterable:</p>
     </div>
   </div>
 </footer>
-      <script src="../_static/documentation_options.js?v=8c5712d9"></script>
+      <script src="../_static/documentation_options.js?v=282f96c0"></script>
       <script src="../_static/doctools.js?v=fd6eb6e6"></script>
       <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script src="../_static/clipboard.min.js?v=a7894cd8"></script>

@@ -1,4 +1,4 @@
-> built 2026-10-13 07:35 UTC from 8fb0d3a (master) · redisdol 0.0.4. Details: build_info.json
+> built 2026-10-13 07:44 UTC from fe944e3 (master) · redisdol 0.0.5. Details: build_info.json
 
 # index.html.md
 
@@ -271,8 +271,14 @@ Redis store that converts lists of numeric strings to lists of numbers.
 >>> s['__test_numeric_list'] = [1,-2,-3.0, 4e-23, 'not_a_number']
 >>> s['__test_numeric_list']
 [1, -2, -3.0, 4e-23, b'not_a_number']
->>> del s['__test_numeric_list']
+>>> s['__test_str'] = 'hello'
+>>> s['__test_str']  # non-list values pass through (they used to come back as None)
+b'hello'
+>>> del s['__test_numeric_list'], s['__test_str']
 ```
+
+Note that a list comes back as a detached python `list` (a snapshot): mutating
+it does not write through to Redis, unlike the `RedisList` handle of `RedisPersister`.
 
 #### write_kwargs
 
@@ -311,18 +317,18 @@ Utils for redisdol
 
 # About this build
 
-This documentation was built on **2026-10-13 07:35 UTC** from commit <a href="https://github.com/i2mint/redisdol/commit/8fb0d3a5a31a4477e123c861a914d6bc749aacfc"><code>8fb0d3a</code></a> on branch <code>master</code>, for **redisdol 0.0.4** (from <code>pyproject.toml</code>).
+This documentation was built on **2026-10-13 07:44 UTC** from commit <a href="https://github.com/i2mint/redisdol/commit/fe944e35d27bde646e0cf5635068d1e8f2abd9ec"><code>fe944e3</code></a> on branch <code>master</code>, for **redisdol 0.0.5** (from <code>pyproject.toml</code>).
 
 #### WARNING
 The documentation and the package may be misaligned:
 
-- The documented version (0.0.4) is behind the latest release on PyPI (0.0.5): `pip install redisdol` gives newer code than these docs describe.
+- The documented version (0.0.5) is behind the latest release on PyPI (0.0.6): `pip install redisdol` gives newer code than these docs describe.
 
 ## Source
 
 |                     |                                                                                                                                                        |
 |---------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------|
-| Commit              | <a href="https://github.com/i2mint/redisdol/commit/8fb0d3a5a31a4477e123c861a914d6bc749aacfc"><code>8fb0d3a5a31a4477e123c861a914d6bc749aacfc</code></a> |
+| Commit              | <a href="https://github.com/i2mint/redisdol/commit/fe944e35d27bde646e0cf5635068d1e8f2abd9ec"><code>fe944e35d27bde646e0cf5635068d1e8f2abd9ec</code></a> |
 | Branch              | <code>master</code>                                                                                                                                    |
 | Tags at this commit | none                                                                                                                                                   |
 | Working tree        | clean                                                                                                                                                  |
@@ -333,9 +339,9 @@ The documentation and the package may be misaligned:
 |              |                                                                                            |
 |--------------|--------------------------------------------------------------------------------------------|
 | Repository   | <code>i2mint/redisdol</code>                                                               |
-| Run          | <a href="https://github.com/i2mint/redisdol/actions/runs/38363411145">38363411145</a>      |
+| Run          | <a href="https://github.com/i2mint/redisdol/actions/runs/38364435513">38364435513</a>      |
 | Ref          | <code>refs/heads/master</code>                                                             |
-| Event commit | <code>8fb0d3a5a31a4477e123c861a914d6bc749aacfc</code> (in the history of the built commit) |
+| Event commit | <code>fe944e35d27bde646e0cf5635068d1e8f2abd9ec</code> (in the history of the built commit) |
 
 ## Tools
 
@@ -360,13 +366,13 @@ The documentation and the package may be misaligned:
 
 ## Package on PyPI
 
-Latest release: <a href="https://pypi.org/project/redisdol/0.0.5/">0.0.5</a>, newer than the documented version (0.0.4).
+Latest release: <a href="https://pypi.org/project/redisdol/0.0.6/">0.0.6</a>, newer than the documented version (0.0.5).
 
 ## Reproduce
 
 ```bash
 git clone https://github.com/i2mint/redisdol && cd redisdol
-git checkout 8fb0d3a5a31a4477e123c861a914d6bc749aacfc
+git checkout fe944e35d27bde646e0cf5635068d1e8f2abd9ec
 pip install "epythet==0.2.15"
 epythet quickstart . --ignore tests/ scrap/ examples/
 ```
