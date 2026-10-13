@@ -59,7 +59,11 @@ def _wrapped_class_of(cls):
     # the generated wrapper class: the one that defines ``__init__`` and, in new dol,
     # carries the attributes in its own namespace (a subclass only inherits them)
     wrapper = next(
-        (c for c in cls.__mro__ if "_wrapped_class" in vars(c) and "__init__" in vars(c)),
+        (
+            c
+            for c in cls.__mro__
+            if "_wrapped_class" in vars(c) and "__init__" in vars(c)
+        ),
         None,
     )
     if wrapper is not None:
