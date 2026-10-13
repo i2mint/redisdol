@@ -563,9 +563,10 @@ def test_wrapped_class_of_falls_back_to_the_init_closure(monkeypatch):
 
     W = KeyCodecs.prefixed("p:")(RedisPersister)
     assert _wrapped_class_of(W)[0] is RedisPersister
-    wrap = next(c for c in W.__mro__ if "_wrapped_class" in vars(c))
+    wrap = next((c for c in W.__mro__ if "_wrapped_class" in vars(c)), None)
     for attr in ("_wrapped_class", "_wrapper_class", "_delegation_attr"):
-        monkeypatch.delattr(wrap, attr)
+        if wrap is not None:  # newer dol sets them; with older dol this is already the fallback
+            monkeypatch.delattr(wrap, attr)
     assert _wrapped_class_of(W)[0] is RedisPersister
     s = store_from_source(FakeRedis(), W)
     s["a"] = "1"
