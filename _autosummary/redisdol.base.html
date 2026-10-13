@@ -314,8 +314,11 @@ into a handle it returns, so pass the element codec here (see
 
 <dl class="py method">
 <dt class="sig sig-object py" id="redisdol.base.RedisList.clear">
-<span class="sig-name descname"><span class="pre">clear</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span> <span class="pre">--</span> <span class="pre">remove</span> <span class="pre">all</span> <span class="pre">items</span> <span class="pre">from</span> <span class="pre">S</span></span></span><a class="reference internal" href="../_modules/redisdol/base.html#RedisList.clear"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#redisdol.base.RedisList.clear" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<span class="sig-name descname"><span class="pre">clear</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/redisdol/base.html#RedisList.clear"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#redisdol.base.RedisList.clear" title="Link to this definition">#</a></dt>
+<dd><p>Delete the list. Like the other operations, refuses (<code class="docutils literal notranslate"><span class="pre">TypeError</span></code>) a key that
+holds something else, which this handle must not destroy; the check and the
+deletion are one WATCH/MULTI transaction.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="redisdol.base.RedisList.extend">
@@ -413,7 +416,7 @@ built over <code class="docutils literal notranslate"><span class="pre">source</
     </div>
   </div>
 </footer>
-      <script src="../_static/documentation_options.js?v=bbaf98b3"></script>
+      <script src="../_static/documentation_options.js?v=53b53b71"></script>
       <script src="../_static/doctools.js?v=fd6eb6e6"></script>
       <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script src="../_static/clipboard.min.js?v=a7894cd8"></script>

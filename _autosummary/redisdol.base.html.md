@@ -129,7 +129,11 @@ into a handle it returns, so pass the element codec here (see
 
 S.append(value) – append value to the end of the sequence
 
-#### clear() → None -- remove all items from S
+#### clear()
+
+Delete the list. Like the other operations, refuses (`TypeError`) a key that
+holds something else, which this handle must not destroy; the check and the
+deletion are one WATCH/MULTI transaction.
 
 #### extend(iterable)
 

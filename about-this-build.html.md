@@ -2,18 +2,16 @@
 
 # About this build
 
-This documentation was built on **2026-10-13 14:25 UTC** from commit <a href="https://github.com/i2mint/redisdol/commit/e7d836cf3cecce1a7709f1e8b308b92c411dbf1d"><code>e7d836c</code></a> on branch <code>master</code>, for **redisdol 0.0.7** (from <code>pyproject.toml</code>).
+This documentation was built on **2026-10-13 14:49 UTC** from commit <a href="https://github.com/i2mint/redisdol/commit/9fc86edb5f89e2a905ca14284b44577285d97ed5"><code>9fc86ed</code></a> on branch <code>master</code>, for **redisdol 0.0.8** (from <code>pyproject.toml</code>).
 
-#### WARNING
-The documentation and the package may be misaligned:
-
-- The documented version (0.0.7) is behind the latest release on PyPI (0.0.8): `pip install redisdol` gives newer code than these docs describe.
+#### NOTE
+Nothing suggests a mismatch: the tree was clean at the commit above, and the documented version is the one on PyPI.
 
 ## Source
 
 |                     |                                                                                                                                                        |
 |---------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------|
-| Commit              | <a href="https://github.com/i2mint/redisdol/commit/e7d836cf3cecce1a7709f1e8b308b92c411dbf1d"><code>e7d836cf3cecce1a7709f1e8b308b92c411dbf1d</code></a> |
+| Commit              | <a href="https://github.com/i2mint/redisdol/commit/9fc86edb5f89e2a905ca14284b44577285d97ed5"><code>9fc86edb5f89e2a905ca14284b44577285d97ed5</code></a> |
 | Branch              | <code>master</code>                                                                                                                                    |
 | Tags at this commit | none                                                                                                                                                   |
 | Working tree        | clean                                                                                                                                                  |
@@ -24,15 +22,15 @@ The documentation and the package may be misaligned:
 |              |                                                                                            |
 |--------------|--------------------------------------------------------------------------------------------|
 | Repository   | <code>i2mint/redisdol</code>                                                               |
-| Run          | <a href="https://github.com/i2mint/redisdol/actions/runs/38412918052">38412918052</a>      |
+| Run          | <a href="https://github.com/i2mint/redisdol/actions/runs/38416510991">38416510991</a>      |
 | Ref          | <code>refs/heads/master</code>                                                             |
-| Event commit | <code>e7d836cf3cecce1a7709f1e8b308b92c411dbf1d</code> (in the history of the built commit) |
+| Event commit | <code>9fc86edb5f89e2a905ca14284b44577285d97ed5</code> (in the history of the built commit) |
 
 ## Tools
 
 |          |         |
 |----------|---------|
-| epythet  | 0.2.15  |
+| epythet  | 0.2.16  |
 | Sphinx   | 9.1.0   |
 | docutils | 0.22.4  |
 | Python   | 3.12.15 |
@@ -51,14 +49,14 @@ The documentation and the package may be misaligned:
 
 ## Package on PyPI
 
-Latest release: <a href="https://pypi.org/project/redisdol/0.0.8/">0.0.8</a>, newer than the documented version (0.0.7).
+Latest release: <a href="https://pypi.org/project/redisdol/0.0.8/">0.0.8</a>, the same as the documented version.
 
 ## Reproduce
 
 ```bash
 git clone https://github.com/i2mint/redisdol && cd redisdol
-git checkout e7d836cf3cecce1a7709f1e8b308b92c411dbf1d
-pip install "epythet==0.2.15"
+git checkout 9fc86edb5f89e2a905ca14284b44577285d97ed5
+pip install "epythet==0.2.16"
 epythet quickstart . --ignore tests/ scrap/ examples/
 ```
 
