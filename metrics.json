@@ -1,7 +1,7 @@
 {
-  "collection_duration_seconds": 4.48366379737854,
-  "commit_message": "Fix #3: drop leaf-bound factories from stores; RedisList element codec (#8)\n\nCo-Authored-By: Claude Sonnet 5.5 <noreply@anthropic.com>",
-  "commit_sha": "8fb0d3a5a31a4477e123c861a914d6bc749aacfc",
+  "collection_duration_seconds": 4.823810815811157,
+  "commit_message": "Raise KeyError for missing keys; pass non-lists through _convert_numeric_list\n\nFixes #4, fixes #5\n\nCo-Authored-By: Claude Sonnet 5.5 <noreply@anthropic.com>",
+  "commit_sha": "42c3b1f045fc30a0eb0198ef548f161a2d671818",
   "metrics": {
     "coverage": {
       "branch_coverage": 0.0,
@@ -11,19 +11,19 @@
       "statements_total": 0
     },
     "umpyre_stats": {
-      "comment_lines": 16984,
-      "comment_lines_ratio": 0.05211126725127179,
-      "docs_lines": 40010,
-      "empty_lines": 42938,
-      "empty_lines_ratio": 0.1317447947029621,
+      "comment_lines": 16967,
+      "comment_lines_ratio": 0.052053357222184723,
+      "docs_lines": 40032,
+      "empty_lines": 42945,
+      "empty_lines_ratio": 0.13175171956779178,
       "files_analyzed": 748,
-      "function_lines": 157278,
-      "function_lines_ratio": 0.4825692352064016,
-      "mean_lines_per_function": 14.294101608652186,
+      "function_lines": 157304,
+      "function_lines_ratio": 0.4825957036882505,
+      "mean_lines_per_function": 14.293866424352567,
       "num_classes": 2166,
-      "num_functions": 11003,
-      "pypi_version": "0.0.4",
-      "total_lines": 325918
+      "num_functions": 11005,
+      "pypi_version": "0.0.5",
+      "total_lines": 325954
     },
     "wily": {
       "cyclomatic_avg": 0.0,
@@ -34,14 +34,14 @@
     },
     "workflow_status": {
       "last_run_status": "success",
-      "last_success_timestamp": "2026-10-13T07:34:21Z",
+      "last_success_timestamp": "2026-10-13T07:35:37Z",
       "recent_failure_count": 0,
-      "run_url": "https://github.com/i2mint/redisdol/actions/runs/38363422959",
-      "total_runs_analyzed": 9
+      "run_url": "https://github.com/i2mint/redisdol/actions/runs/38363594398",
+      "total_runs_analyzed": 10
     }
   },
   "python_version": "3.10",
   "schema_version": "1.0",
-  "timestamp": "2026-10-13T07:34:37.026605Z",
+  "timestamp": "2026-10-13T07:39:41.633087Z",
   "workflow_status": {}
 }
