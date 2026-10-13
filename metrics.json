@@ -1,7 +1,7 @@
 {
-  "collection_duration_seconds": 4.133577823638916,
-  "commit_message": "fix: store_from_source builds dol-wrapped classes (#10)\n\nCo-Authored-By: Claude Sonnet 5.5 <noreply@anthropic.com>",
-  "commit_sha": "d9f55bcd829e886bc1d9ec789b9db16d672c0287",
+  "collection_duration_seconds": 4.264982223510742,
+  "commit_message": "Merge d9f55bcd829e886bc1d9ec789b9db16d672c0287 into 83d1d52fff42202e11c7389588f4e944b277e216",
+  "commit_sha": "a143a21a311d885434692c3af851cd36924c5de1",
   "metrics": {
     "coverage": {
       "branch_coverage": 0.0,
@@ -42,6 +42,6 @@
   },
   "python_version": "3.10",
   "schema_version": "1.0",
-  "timestamp": "2026-10-13T14:11:29.772140Z",
+  "timestamp": "2026-10-13T14:11:34.994305Z",
   "workflow_status": {}
 }
