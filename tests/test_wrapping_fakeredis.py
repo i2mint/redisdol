@@ -563,9 +563,32 @@ def test_wrapped_class_of_falls_back_to_the_init_closure(monkeypatch):
 
     W = KeyCodecs.prefixed("p:")(RedisPersister)
     assert _wrapped_class_of(W)[0] is RedisPersister
+    wrap = next(c for c in W.__mro__ if "_wrapped_class" in vars(c))
     for attr in ("_wrapped_class", "_wrapper_class", "_delegation_attr"):
-        monkeypatch.setattr(W, attr, None)
-    assert _wrapped_class_of(W) == (RedisPersister, Store)
+        monkeypatch.delattr(wrap, attr)
+    assert _wrapped_class_of(W)[0] is RedisPersister
     s = store_from_source(FakeRedis(), W)
     s["a"] = "1"
     assert s["a"] == b"1"
+
+
+def test_subclass_with_its_own_init_is_refused_and_a_mixin_in_the_mro_still_runs():
+    W = KeyCodecs.prefixed("p:")(RedisPersister)
+
+    class Y(W):  # built through its own __init__, which we can't call without a Redis(**kw)
+        def __init__(self, *a, **k):
+            super().__init__(*a, **k)
+            self.extra = 1
+
+    with pytest.raises(TypeError, match="can't be determined"):
+        store_from_source(FakeRedis(), Y)
+
+    class Mixin(Store):
+        def __init__(self, store):
+            super().__init__(store)
+            self.mixin_ran = True
+
+    class X(W, Mixin):
+        pass
+
+    assert store_from_source(FakeRedis(), X).mixin_ran is True

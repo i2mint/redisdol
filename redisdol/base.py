@@ -46,22 +46,29 @@ class RedisFactories:
 
 
 def _wrapped_class_of(cls):
-    """``(wrapped class, delegator class)`` of a ``dol`` class-wrapper (``wrap_kvs``,
-    ``KeyCodecs...``, ``filt_iter``), read from the closure of the ``__init__`` dol
-    generates for it (``None`` if it has none, or delegates through another attribute
-    than ``store``). Reads the ``_wrapped_class`` / ``_wrapper_class`` /
-    ``_delegation_attr`` attributes dol sets on the wrapper (dol#131); falls back to the
-    closure of its generated ``__init__`` for older dol versions."""
-    attrs = tuple(
-        getattr(cls, a, None)
-        for a in ("_wrapped_class", "_wrapper_class", "_delegation_attr")
+    """``(wrapped class, dol's generated wrapper class)`` of a ``dol`` class-wrapper
+    (``wrap_kvs``, ``KeyCodecs...``, ``filt_iter``), or ``None`` if ``cls`` is not one,
+    delegates through another attribute than ``store``, or has an ``__init__`` of its
+    own (a subclass of a wrapper: it must be built through that ``__init__``).
+
+    Reads the ``_wrapped_class`` / ``_delegation_attr`` attributes dol sets on its
+    generated wrapper class (dol#131), falling back, for older dol versions, to the
+    closure of the ``__init__`` it generates.
+    """
+    init = getattr(cls, "__init__", None)
+    # the generated wrapper class: the one that defines ``__init__`` and, in new dol,
+    # carries the attributes in its own namespace (a subclass only inherits them)
+    wrapper = next(
+        (c for c in cls.__mro__ if "_wrapped_class" in vars(c) and "__init__" in vars(c)),
+        None,
     )
-    if all(a is not None for a in attrs):
-        wrapped, wrapper, attr = attrs
-        if isinstance(wrapped, type) and isinstance(wrapper, type) and attr == "store":
+    if wrapper is not None:
+        if vars(wrapper)["__init__"] is not init:
+            return None
+        wrapped, attr = wrapper._wrapped_class, wrapper._delegation_attr
+        if isinstance(wrapped, type) and attr == "store":
             return wrapped, wrapper
         return None
-    init = getattr(cls, "__init__", None)
     code, cells = getattr(init, "__code__", None), getattr(init, "__closure__", None)
     if code is None or not cells:
         return None
@@ -76,7 +83,7 @@ def _wrapped_class_of(cls):
         return None
     if not (isinstance(wrapped, type) and isinstance(wrapper, type) and attr == "store"):
         return None
-    return wrapped, wrapper.__bases__[0]  # the class dol's ``Wrap`` subclasses
+    return wrapped, wrapper
 
 
 def _new_with_source(cls, source):
@@ -90,11 +97,11 @@ def _new_with_source(cls, source):
                 "Store whose wrapped class can't be determined. Build the store over "
                 "the connection first and wrap that instance instead."
             )
-        wrapped, delegator = found
+        wrapped, wrapper = found
         self = object.__new__(cls)
-        # what dol's generated __init__ does after building the delegate: the delegator
-        # class's own __init__ (which may set state of its own), not Store's directly
-        delegator.__init__(self, _new_with_source(wrapped, source))
+        # what dol's generated __init__ does after building the delegate: the next
+        # __init__ in the instance's MRO (which may set state of its own), not Store's
+        super(wrapper, self).__init__(_new_with_source(wrapped, source))
         return self
     self = object.__new__(cls)
     self._source = source
