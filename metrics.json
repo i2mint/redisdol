@@ -1,7 +1,7 @@
 {
-  "collection_duration_seconds": 4.545381307601929,
-  "commit_message": "Merge 42c3b1f045fc30a0eb0198ef548f161a2d671818 into b80f0020f77d4ea9259c3418b6e09a43d6b5be70",
-  "commit_sha": "a0d7dd4eaacb99c58529090f3c3ad3e2f603e3c9",
+  "collection_duration_seconds": 3.2433159351348877,
+  "commit_message": "RedisCollection: handle decode_responses types; raise TypeError for unsupported redis types\n\nCo-Authored-By: Claude Sonnet 5.5 <noreply@anthropic.com>",
+  "commit_sha": "166fe67915792ece9e1e6f83a18de40e010b096b",
   "metrics": {
     "coverage": {
       "branch_coverage": 0.0,
@@ -12,18 +12,18 @@
     },
     "umpyre_stats": {
       "comment_lines": 16967,
-      "comment_lines_ratio": 0.052053357222184723,
+      "comment_lines_ratio": 0.052052239378330534,
       "docs_lines": 40032,
       "empty_lines": 42945,
-      "empty_lines_ratio": 0.13175171956779178,
+      "empty_lines_ratio": 0.13174889020465638,
       "files_analyzed": 748,
-      "function_lines": 157304,
-      "function_lines_ratio": 0.4825957036882505,
-      "mean_lines_per_function": 14.293866424352567,
+      "function_lines": 157311,
+      "function_lines_ratio": 0.48260681492571195,
+      "mean_lines_per_function": 14.294502498864153,
       "num_classes": 2166,
       "num_functions": 11005,
       "pypi_version": "0.0.5",
-      "total_lines": 325954
+      "total_lines": 325961
     },
     "wily": {
       "cyclomatic_avg": 0.0,
@@ -34,14 +34,14 @@
     },
     "workflow_status": {
       "last_run_status": "success",
-      "last_success_timestamp": "2026-10-13T07:39:47Z",
+      "last_success_timestamp": "2026-10-13T07:41:35Z",
       "recent_failure_count": 0,
-      "run_url": "https://github.com/i2mint/redisdol/actions/runs/38363955866",
+      "run_url": "https://github.com/i2mint/redisdol/actions/runs/38364145951",
       "total_runs_analyzed": 10
     }
   },
   "python_version": "3.10",
   "schema_version": "1.0",
-  "timestamp": "2026-10-13T07:41:29.753646Z",
+  "timestamp": "2026-10-13T07:42:25.764397Z",
   "workflow_status": {}
 }

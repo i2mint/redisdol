@@ -1,26 +1,28 @@
 metric,value
 schema_version,1.0
-timestamp,2026-10-13T07:41:29.753646Z
-commit_sha,a0d7dd4eaacb99c58529090f3c3ad3e2f603e3c9
-commit_message,Merge 42c3b1f045fc30a0eb0198ef548f161a2d671818 into b80f0020f77d4ea9259c3418b6e09a43d6b5be70
+timestamp,2026-10-13T07:42:25.764397Z
+commit_sha,166fe67915792ece9e1e6f83a18de40e010b096b
+commit_message,"RedisCollection: handle decode_responses types; raise TypeError for unsupported redis types
+
+Co-Authored-By: Claude Sonnet 5.5 <noreply@anthropic.com>"
 python_version,3.10
 metrics.umpyre_stats.num_functions,11005
 metrics.umpyre_stats.num_classes,2166
-metrics.umpyre_stats.total_lines,325954
+metrics.umpyre_stats.total_lines,325961
 metrics.umpyre_stats.empty_lines,42945
 metrics.umpyre_stats.comment_lines,16967
 metrics.umpyre_stats.docs_lines,40032
-metrics.umpyre_stats.function_lines,157304
-metrics.umpyre_stats.empty_lines_ratio,0.13175171956779178
-metrics.umpyre_stats.comment_lines_ratio,0.052053357222184723
-metrics.umpyre_stats.function_lines_ratio,0.4825957036882505
-metrics.umpyre_stats.mean_lines_per_function,14.293866424352567
+metrics.umpyre_stats.function_lines,157311
+metrics.umpyre_stats.empty_lines_ratio,0.13174889020465638
+metrics.umpyre_stats.comment_lines_ratio,0.052052239378330534
+metrics.umpyre_stats.function_lines_ratio,0.48260681492571195
+metrics.umpyre_stats.mean_lines_per_function,14.294502498864153
 metrics.umpyre_stats.files_analyzed,748
 metrics.umpyre_stats.pypi_version,0.0.5
 metrics.workflow_status.last_run_status,success
-metrics.workflow_status.last_success_timestamp,2026-10-13T07:39:47Z
+metrics.workflow_status.last_success_timestamp,2026-10-13T07:41:35Z
 metrics.workflow_status.recent_failure_count,0
-metrics.workflow_status.run_url,https://github.com/i2mint/redisdol/actions/runs/38363955866
+metrics.workflow_status.run_url,https://github.com/i2mint/redisdol/actions/runs/38364145951
 metrics.workflow_status.total_runs_analyzed,10
 metrics.wily.cyclomatic_avg,0.0
 metrics.wily.maintainability_index,0.0
@@ -36,4 +38,4 @@ metrics.coverage.branch_coverage,0.0
 metrics.coverage.statements_covered,0
 metrics.coverage.statements_total,0
 metrics.coverage.error,No coverage file found
-collection_duration_seconds,4.545381307601929
+collection_duration_seconds,3.2433159351348877
