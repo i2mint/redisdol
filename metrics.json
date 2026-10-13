@@ -1,7 +1,7 @@
 {
-  "collection_duration_seconds": 4.584697246551514,
-  "commit_message": "Merge 269c27bbafb31b40ebf39126204388195d44960f into 610600c19a4dd8a69db9a897e80470bdb3fd8458",
-  "commit_sha": "f7f29fb9b5b9163123dbf4c7ace73add95b656fa",
+  "collection_duration_seconds": 4.48366379737854,
+  "commit_message": "Fix #3: drop leaf-bound factories from stores; RedisList element codec (#8)\n\nCo-Authored-By: Claude Sonnet 5.5 <noreply@anthropic.com>",
+  "commit_sha": "8fb0d3a5a31a4477e123c861a914d6bc749aacfc",
   "metrics": {
     "coverage": {
       "branch_coverage": 0.0,
@@ -34,14 +34,14 @@
     },
     "workflow_status": {
       "last_run_status": "success",
-      "last_success_timestamp": "2026-10-13T07:32:38Z",
+      "last_success_timestamp": "2026-10-13T07:34:21Z",
       "recent_failure_count": 0,
-      "run_url": "https://github.com/i2mint/redisdol/actions/runs/38363175578",
-      "total_runs_analyzed": 7
+      "run_url": "https://github.com/i2mint/redisdol/actions/runs/38363422959",
+      "total_runs_analyzed": 9
     }
   },
   "python_version": "3.10",
   "schema_version": "1.0",
-  "timestamp": "2026-10-13T07:32:55.482552Z",
+  "timestamp": "2026-10-13T07:34:37.026605Z",
   "workflow_status": {}
 }
