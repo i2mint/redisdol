@@ -7,18 +7,29 @@ from dol.base import Collection, KvReader, KvPersister
 from redis import Redis
 
 
+def _identity(x):
+    return x
+
+
 class RedisType:
     string = b"string"
     list = b"list"
 
 
 class RedisFactories:
+    """Classmethod constructors that reuse an existing ``Redis`` connection.
+
+    Kept for backward compatibility, but the store classes no longer inherit it:
+    a classmethod on a store's attribute surface is re-exported *leaf-bound* by
+    every dol wrapper (key codec, prefix, filter...), so it hands back an
+    unwrapped store over the whole keyspace. Prefer the module-level
+    :func:`store_from_source` / :func:`store_from_sourced_object`.
+    """
+
     @classmethod
     def from_source(cls, source):
         """Makes an instance initialized with attribute '_source' from given source"""
-        self = object.__new__(cls)
-        self._source = source
-        return self
+        return _new_with_source(cls, source)
 
     @classmethod
     def from_sourced_object(cls, obj):
@@ -26,11 +37,40 @@ class RedisFactories:
         return cls.from_source(obj._source)
 
 
+def _new_with_source(cls, source):
+    self = object.__new__(cls)
+    self._source = source
+    return self
+
+
+def store_from_source(source, cls=None):
+    """Make a store of type ``cls`` (default `RedisPersister`) over a ``Redis`` connection.
+
+    The returned store is a plain, *unwrapped* ``cls`` instance: it sees the whole
+    keyspace of ``source``. Apply any key/value codecs to the result yourself.
+
+    >>> from fakeredis import FakeRedis
+    >>> s = store_from_source(FakeRedis())
+    >>> s['k'] = 'v'
+    >>> s['k']
+    b'v'
+    """
+    return _new_with_source(RedisPersister if cls is None else cls, source)
+
+
+def store_from_sourced_object(obj, cls=None):
+    """Like `store_from_source`, taking the connection from ``obj._source``.
+
+    Note this deliberately does not carry over any key/value wrapping of ``obj``.
+    """
+    return store_from_source(obj._source, cls)
+
+
 # TODO: Check:
 #   Redis object seems to have getitem, setitem and delitem, so might already have Mapping API
 
 
-class RedisBytesCollection(Collection, RedisFactories):
+class RedisBytesCollection(Collection):
     @wraps(Redis.__init__)
     def __init__(self, **kwargs):
         self._source = Redis(**kwargs)
@@ -165,25 +205,44 @@ from collections.abc import MutableSequence
 class RedisList(MutableSequence):
     """
     An object to operate on Redis lists as if they were python lists
+
+    A live handle: writes go straight to Redis. It is *raw* (no codec) unless
+    ``encode`` / ``decode`` are given, in which case ``encode`` is applied to every
+    element written (``__setitem__``, ``append``, ``extend``) and ``decode`` to every
+    element read. A codec layered on the *store* (e.g. ``wrap_kvs``) cannot reach
+    into a handle it returns, so pass the element codec here (see
+    ``RedisCollection.list_encode`` / ``list_decode``).
+
+    >>> from fakeredis import FakeRedis
+    >>> l = RedisList(FakeRedis(), 'l', encode=str.upper, decode=bytes.decode)
+    >>> l.extend(['a', 'b']); l.append('c'); l[0] = 'z'
+    >>> list(l)
+    ['Z', 'B', 'C']
     """
 
-    def __init__(self, source, name):
+    def __init__(self, source, name, *, encode=None, decode=None):
         self._source = source
         self._name = name
+        self._encode = encode or _identity
+        self._decode = decode or _identity
 
     def __len__(self):
         return self._source.llen(self._name)
 
     def __getitem__(self, i):
         if isinstance(i, int):
-            return self._source.lindex(self._name, i)
+            v = self._source.lindex(self._name, i)
+            return v if v is None else self._decode(v)
         else:  # assume it's a slice, and modify it to conform to inclusive Redis slicing
             try:
                 if i.step is not None:
                     raise NotImplementedError(
                         "Slicing is so far only implemented without step"
                     )
-                return self._source.lrange(self._name, i.start or 0, i.stop - 1)
+                return [
+                    self._decode(v)
+                    for v in self._source.lrange(self._name, i.start or 0, i.stop - 1)
+                ]
             except AttributeError:
                 raise KeyError(f"Index should be an integer or a slice object. Was {i}")
 
@@ -195,7 +254,7 @@ class RedisList(MutableSequence):
             yield self[i]
 
     def __setitem__(self, i, v):
-        return self._source.lset(self._name, i, v)
+        return self._source.lset(self._name, i, self._encode(v))
 
     def __delitem__(self, i):  # TODO: Implement
         raise NotImplementedError(
@@ -203,10 +262,14 @@ class RedisList(MutableSequence):
         )
 
     def append(self, v):
-        return self._source.rpushx(self._name, v)
+        # rpush (not rpushx): appending to a not-yet-existing list creates it,
+        # consistently with `extend`.
+        self._source.rpush(self._name, self._encode(v))
 
     def extend(self, iterable):
-        self._source.rpush(self._name, *iterable)
+        values = [self._encode(v) for v in iterable]
+        if values:  # rpush with no values is a redis error
+            self._source.rpush(self._name, *values)
 
     def insert(self, i, v):  # TODO: Implement
         raise NotImplementedError("Might have to do with self._source.linsert")
@@ -215,12 +278,19 @@ class RedisList(MutableSequence):
 # TODO: Consider if should move to stores
 # The following will probably be moved to stores, since it has serialization and indexinig logic
 class RedisCollection(RedisBytesCollection):
+    #: Element codecs handed to the `RedisList` this store returns (override in a
+    #: subclass, or set on an instance). ``None`` means raw.
+    list_encode = None
+    list_decode = None
+
     def __getitem__(self, k):
         val_type = self._source.type(k)
         if val_type == b"string":
             return self._source.get(k)
         elif val_type == b"list":
-            return RedisList(self._source, k)
+            return RedisList(
+                self._source, k, encode=self.list_encode, decode=self.list_decode
+            )
 
 
 class RedisPersister(RedisCollection, RedisBytesPersister):

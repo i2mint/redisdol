@@ -20,6 +20,8 @@ from redisdol.base import (
     RedisBytesPersister,
     RedisType,
     RedisFactories,
+    store_from_source,
+    store_from_sourced_object,
     RedisPersister,
     RedisCollection,
     RedisList,
