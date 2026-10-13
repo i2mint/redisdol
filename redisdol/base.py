@@ -63,7 +63,9 @@ def _wrapped_class_of(cls):
         wrapper = free["__class__"].cell_contents
     except ValueError:  # empty cell
         return None
-    if not (isinstance(wrapped, type) and isinstance(wrapper, type) and attr == "store"):
+    if not (
+        isinstance(wrapped, type) and isinstance(wrapper, type) and attr == "store"
+    ):
         return None
     return wrapped, wrapper
 
@@ -342,7 +344,9 @@ class RedisList(MutableSequence):
         i = operator.index(i)
         try:
             self._source.lset(self._name, i, self._encode(v))
-        except ResponseError as e:  # redis: 'no such key' / 'index out of range' / WRONGTYPE
+        except (
+            ResponseError
+        ) as e:  # redis: 'no such key' / 'index out of range' / WRONGTYPE
             translated = _translate_list_response_error(e, "RedisList assignment")
             if translated is None:
                 raise
