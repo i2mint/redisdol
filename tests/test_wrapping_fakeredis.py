@@ -155,3 +155,20 @@ def test_numeric_lists_store_passes_strings_through(monkeypatch):
     assert s["nums"] == [1, -2, 3.5, b"nope"]
     assert dict(s) == {b"str": b"hello", b"nums": [1, -2, 3.5, b"nope"]}
     assert _convert_numeric_list("plain") == "plain"
+
+
+def test_decode_responses_connection_missing_and_present_keys():
+    s = store_from_source(FakeRedis(decode_responses=True), RedisPersister)
+    s["k"] = "v"
+    s["l"] = ["a"]
+    assert s["k"] == "v" and list(s["l"]) == ["a"]
+    with pytest.raises(KeyError):
+        s["absent"]
+
+
+def test_unsupported_redis_type_raises_typeerror_not_none():
+    s = _store()
+    s._source.hset("h", "f", "v")
+    assert "h" in s
+    with pytest.raises(TypeError, match="hash"):
+        s["h"]

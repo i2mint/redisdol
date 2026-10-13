@@ -304,6 +304,8 @@ class RedisCollection(RedisBytesCollection):
 
     def __getitem__(self, k):
         val_type = self._source.type(k)
+        if isinstance(val_type, str):  # connection made with decode_responses=True
+            val_type = val_type.encode()
         if val_type == b"string":
             v = self._source.get(k)
             if v is None:  # expired/deleted between TYPE and GET
@@ -313,6 +315,11 @@ class RedisCollection(RedisBytesCollection):
             return self._mk_list(k)
         elif val_type == b"none":
             raise KeyError(k)
+        else:  # hash, set, zset, stream...: present but not representable here
+            raise TypeError(
+                f"Key {k!r} holds a Redis {val_type.decode()!r}, "
+                "which this store can't read (only strings and lists)"
+            )
 
 
 class RedisPersister(RedisCollection, RedisBytesPersister):
