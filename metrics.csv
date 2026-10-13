@@ -1,10 +1,24 @@
 metric,value
 schema_version,1.0
-timestamp,2026-10-13T14:34:26.501667Z
-commit_sha,b670de31aebe5a5d5f5e9253c49c79ae860e8c60
-commit_message,"test: fallback test works with dol versions that do not set the wrapper attributes (#15)
+timestamp,2026-10-13T14:49:29.444968Z
+commit_sha,9fc86edb5f89e2a905ca14284b44577285d97ed5
+commit_message,"fix: every RedisList operation on a wrong-type key is a TypeError; bytes-like elements (#15) (#16)
 
-Co-Authored-By: Claude Sonnet 5.5 <noreply@anthropic.com>"
+* fix: every RedisList operation on a wrong-type key is a TypeError; bytes-like elements (#15)
+
+Co-Authored-By: Claude Sonnet 5.5 <noreply@anthropic.com>
+
+* fix: _wrapped_class_of keeps refusing subclasses with their own __init__ and honours mixins in the MRO (review of #15)
+
+Co-Authored-By: Claude Sonnet 5.5 <noreply@anthropic.com>
+
+* test: fallback test works with dol versions that do not set the wrapper attributes (#15)
+
+Co-Authored-By: Claude Sonnet 5.5 <noreply@anthropic.com>
+
+---------
+
+Co-authored-by: Claude Sonnet 5.5 <noreply@anthropic.com>"
 python_version,3.10
 metrics.umpyre_stats.num_functions,11030
 metrics.umpyre_stats.num_classes,2166
@@ -18,11 +32,11 @@ metrics.umpyre_stats.comment_lines_ratio,0.052010745211672704
 metrics.umpyre_stats.function_lines_ratio,0.4834671379693755
 metrics.umpyre_stats.mean_lines_per_function,14.309882139619221
 metrics.umpyre_stats.files_analyzed,748
-metrics.umpyre_stats.pypi_version,0.0.7
+metrics.umpyre_stats.pypi_version,0.0.8
 metrics.workflow_status.last_run_status,success
-metrics.workflow_status.last_success_timestamp,2026-10-13T14:32:46Z
+metrics.workflow_status.last_success_timestamp,2026-10-13T14:34:34Z
 metrics.workflow_status.recent_failure_count,0
-metrics.workflow_status.run_url,https://github.com/i2mint/redisdol/actions/runs/38414100736
+metrics.workflow_status.run_url,https://github.com/i2mint/redisdol/actions/runs/38414336189
 metrics.workflow_status.total_runs_analyzed,10
 metrics.wily.cyclomatic_avg,0.0
 metrics.wily.maintainability_index,0.0
@@ -35,4 +49,4 @@ metrics.coverage.branch_coverage,0.0
 metrics.coverage.statements_covered,0
 metrics.coverage.statements_total,0
 metrics.coverage.error,No coverage file found
-collection_duration_seconds,4.106204032897949
+collection_duration_seconds,3.982194185256958
