@@ -256,6 +256,24 @@ brpoplpush: (self, src, dst, timeout=0)
 from collections.abc import MutableSequence
 
 
+def _translate_list_response_error(e: ResponseError, what: str):
+    """The Python exception a failed list write maps to (to be raised ``from e``), or ``None``.
+
+    ``WRONGTYPE`` (the key holds a string, hash...) is a ``TypeError``; 'no such key' and
+    'index out of range' are an ``IndexError`` like a list's; anything else (READONLY,
+    OOM, ...) is not an index problem: ``None``, the caller re-raises it as it is. Only
+    the server's own words are read: a pipeline's message also quotes the command, and so
+    the key's name.
+    """
+    message = str(e).rsplit("caused error: ", 1)[-1]
+    if message.upper().startswith("WRONGTYPE"):
+        return TypeError(f"{what}: the key holds a Redis value that is not a list")
+    lowered = message.lower()
+    if "no such key" in lowered or "index out of range" in lowered:
+        return IndexError(f"{what} index out of range")
+    return None
+
+
 # TODO: Redis list type is more of a linked-list than a list. Better subclass deque?
 class RedisList(MutableSequence):
     """
@@ -324,8 +342,11 @@ class RedisList(MutableSequence):
         i = operator.index(i)
         try:
             self._source.lset(self._name, i, self._encode(v))
-        except ResponseError as e:  # redis: 'no such key' / 'index out of range'
-            raise IndexError("RedisList assignment index out of range") from e
+        except ResponseError as e:  # redis: 'no such key' / 'index out of range' / WRONGTYPE
+            translated = _translate_list_response_error(e, "RedisList assignment")
+            if translated is None:
+                raise
+            raise translated from e
 
     def __delitem__(self, i):
         """Delete the element at position ``i`` (atomically).
@@ -344,7 +365,10 @@ class RedisList(MutableSequence):
                 pipe.lrem(self._name, 1, sentinel)
                 pipe.execute()
         except ResponseError as e:
-            raise IndexError("RedisList assignment index out of range") from e
+            translated = _translate_list_response_error(e, "RedisList deletion")
+            if translated is None:
+                raise
+            raise translated from e
 
     def append(self, v):
         # rpush (not rpushx): appending to a not-yet-existing list creates it,
@@ -432,6 +456,8 @@ class RedisCollection(RedisBytesCollection):
 
 class RedisPersister(RedisCollection, RedisBytesPersister):
     def __setitem__(self, k, v):
+        if isinstance(v, (bytearray, memoryview)):
+            v = bytes(v)  # bytes-like: a redis string, not a list of ints
         if isinstance(v, Iterable) and not isinstance(v, (str, bytes)):
             encode = self._list_codec("list_encode") or _identity
             values = [encode(x) for x in v]  # also consumes one-shot iterables
