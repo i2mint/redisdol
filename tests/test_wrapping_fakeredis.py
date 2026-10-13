@@ -418,3 +418,38 @@ def test_bytes_like_values_are_stored_as_a_string_not_a_list_of_ints(make):
     s["k"] = make(b"hello")
     assert s["k"] == b"hello"
     assert s._source.type("k") == b"string"
+
+
+def test_key_names_do_not_change_how_a_pipeline_error_is_classified():
+    from redis.exceptions import ResponseError
+
+    r = FakeRedis()
+    with pytest.raises(IndexError):  # a missing key that is *named* WRONGTYPE
+        del RedisList(r, "WRONGTYPE")[0]
+
+    class ReadOnlyPipe:  # a READONLY error on a key named like a list error
+        def pipeline(self, transaction=True):
+            class P:
+                def __enter__(s):
+                    return s
+
+                def __exit__(s, *a):
+                    return False
+
+                def lset(s, *a):
+                    pass
+
+                def lrem(s, *a):
+                    pass
+
+                def execute(s):
+                    raise ResponseError(
+                        "Command # 1 (LSET no such key 0 x) of pipeline caused error: "
+                        "READONLY You can't write against a read only replica."
+                    )
+
+            return P()
+
+    with pytest.raises(ResponseError, match="READONLY") as info:
+        del RedisList(ReadOnlyPipe(), "no such key")[0]
+    assert info.value.__cause__ is None  # not its own cause
