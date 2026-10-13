@@ -1,7 +1,7 @@
 {
-  "collection_duration_seconds": 4.4330480098724365,
-  "commit_message": "RedisList: MutableSequence contract (insert, del, slices, IndexError); safe list assignment\n\nFixes #6, fixes #7\n\nCo-Authored-By: Claude Sonnet 5.5 <noreply@anthropic.com>",
-  "commit_sha": "8544afbe922d4cb8ff9c60875d25ee5a169172e5",
+  "collection_duration_seconds": 4.563364744186401,
+  "commit_message": "Merge 8544afbe922d4cb8ff9c60875d25ee5a169172e5 into fe944e35d27bde646e0cf5635068d1e8f2abd9ec",
+  "commit_sha": "b209b63840f0b104ef00b48bb18bc6813aed6e1d",
   "metrics": {
     "coverage": {
       "branch_coverage": 0.0,
@@ -42,6 +42,6 @@
   },
   "python_version": "3.10",
   "schema_version": "1.0",
-  "timestamp": "2026-10-13T07:45:03.256052Z",
+  "timestamp": "2026-10-13T07:45:12.748483Z",
   "workflow_status": {}
 }
