@@ -1,53 +1,38 @@
 metric,value
 schema_version,1.0
-timestamp,2026-10-13T08:00:07.912409Z
-commit_sha,f8caea06a0bad2a5ea2b97a1bd7797a2493118b5
-commit_message,"RedisList: implement insert/del, fix slicing and IndexError; safe list assignment (#11)
+timestamp,2026-10-13T14:11:29.772140Z
+commit_sha,d9f55bcd829e886bc1d9ec789b9db16d672c0287
+commit_message,"fix: store_from_source builds dol-wrapped classes (#10)
 
-* RedisList: MutableSequence contract (insert, del, slices, IndexError); safe list assignment
-
-Fixes #6, fixes #7
-
-Co-Authored-By: Claude Sonnet 5.5 <noreply@anthropic.com>
-
-* RedisList: TypeError for non-integer indices; guard iter_batch_size
-
-Co-Authored-By: Claude Sonnet 5.5 <noreply@anthropic.com>
-
----------
-
-Co-authored-by: Claude Sonnet 5.5 <noreply@anthropic.com>"
+Co-Authored-By: Claude Sonnet 5.5 <noreply@anthropic.com>"
 python_version,3.10
-metrics.umpyre_stats.num_functions,11009
+metrics.umpyre_stats.num_functions,11022
 metrics.umpyre_stats.num_classes,2166
-metrics.umpyre_stats.total_lines,326037
-metrics.umpyre_stats.empty_lines,42954
-metrics.umpyre_stats.comment_lines,16968
-metrics.umpyre_stats.docs_lines,40044
-metrics.umpyre_stats.function_lines,157391
-metrics.umpyre_stats.empty_lines_ratio,0.13174578345402516
-metrics.umpyre_stats.comment_lines_ratio,0.05204317301410576
-metrics.umpyre_stats.function_lines_ratio,0.48273968905369635
-metrics.umpyre_stats.mean_lines_per_function,14.296575529112545
+metrics.umpyre_stats.total_lines,326348
+metrics.umpyre_stats.empty_lines,43001
+metrics.umpyre_stats.comment_lines,16976
+metrics.umpyre_stats.docs_lines,40142
+metrics.umpyre_stats.function_lines,157698
+metrics.umpyre_stats.empty_lines_ratio,0.13176425165773958
+metrics.umpyre_stats.comment_lines_ratio,0.052018091117457435
+metrics.umpyre_stats.function_lines_ratio,0.4832203659896797
+metrics.umpyre_stats.mean_lines_per_function,14.307566684812194
 metrics.umpyre_stats.files_analyzed,748
-metrics.umpyre_stats.pypi_version,0.0.6
+metrics.umpyre_stats.pypi_version,0.0.7
 metrics.workflow_status.last_run_status,success
-metrics.workflow_status.last_success_timestamp,2026-10-13T07:58:18Z
+metrics.workflow_status.last_success_timestamp,2026-10-13T08:01:18Z
 metrics.workflow_status.recent_failure_count,0
-metrics.workflow_status.run_url,https://github.com/i2mint/redisdol/actions/runs/38365988048
+metrics.workflow_status.run_url,https://github.com/i2mint/redisdol/actions/runs/38366395623
 metrics.workflow_status.total_runs_analyzed,10
 metrics.wily.cyclomatic_avg,0.0
 metrics.wily.maintainability_index,0.0
 metrics.wily.total_loc,0
 metrics.wily.files_analyzed,0
-metrics.wily.error,"wily report failed: Usage: wily report [OPTIONS] FILE [METRICS]...
-Try 'wily report --help' for help.
-
-Error: Invalid value for '-f' / '--format': 'json' is not one of 'CONSOLE', 'HTML'.
+metrics.wily.error,"wily build failed: [31mFailed to setup archiver: 'Dirty repository, make sure you commit/stash files first'[0m
 "
 metrics.coverage.line_coverage,0.0
 metrics.coverage.branch_coverage,0.0
 metrics.coverage.statements_covered,0
 metrics.coverage.statements_total,0
 metrics.coverage.error,No coverage file found
-collection_duration_seconds,3.9653007984161377
+collection_duration_seconds,4.133577823638916

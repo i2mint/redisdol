@@ -1,0 +1,47 @@
+{
+  "collection_duration_seconds": 4.133577823638916,
+  "commit_message": "fix: store_from_source builds dol-wrapped classes (#10)\n\nCo-Authored-By: Claude Sonnet 5.5 <noreply@anthropic.com>",
+  "commit_sha": "d9f55bcd829e886bc1d9ec789b9db16d672c0287",
+  "metrics": {
+    "coverage": {
+      "branch_coverage": 0.0,
+      "error": "No coverage file found",
+      "line_coverage": 0.0,
+      "statements_covered": 0,
+      "statements_total": 0
+    },
+    "umpyre_stats": {
+      "comment_lines": 16976,
+      "comment_lines_ratio": 0.052018091117457435,
+      "docs_lines": 40142,
+      "empty_lines": 43001,
+      "empty_lines_ratio": 0.13176425165773958,
+      "files_analyzed": 748,
+      "function_lines": 157698,
+      "function_lines_ratio": 0.4832203659896797,
+      "mean_lines_per_function": 14.307566684812194,
+      "num_classes": 2166,
+      "num_functions": 11022,
+      "pypi_version": "0.0.7",
+      "total_lines": 326348
+    },
+    "wily": {
+      "cyclomatic_avg": 0.0,
+      "error": "wily build failed: \u001b[31mFailed to setup archiver: 'Dirty repository, make sure you commit/stash files first'\u001b[0m\n",
+      "files_analyzed": 0,
+      "maintainability_index": 0.0,
+      "total_loc": 0
+    },
+    "workflow_status": {
+      "last_run_status": "success",
+      "last_success_timestamp": "2026-10-13T08:01:18Z",
+      "recent_failure_count": 0,
+      "run_url": "https://github.com/i2mint/redisdol/actions/runs/38366395623",
+      "total_runs_analyzed": 10
+    }
+  },
+  "python_version": "3.10",
+  "schema_version": "1.0",
+  "timestamp": "2026-10-13T14:11:29.772140Z",
+  "workflow_status": {}
+}
