@@ -318,3 +318,56 @@ def test_redislist_non_integer_index_is_typeerror(monkeypatch):
             l.insert(bad, "v")
     monkeypatch.setattr(RedisList, "iter_batch_size", 0)  # degenerate: still terminates
     assert _dec(l) == ["a", "b"]
+
+
+# ---- store_from_source on dol-wrapped classes (i2mint/redisdol#10) ----------------------
+
+
+def test_store_from_source_builds_wrapped_classes():
+    from redisdol.stores import RedisStoreWithNumericLists
+
+    r = FakeRedis()
+    s = store_from_source(r, RedisStoreWithNumericLists)
+    s["nums"] = [1, 2.5, "x"]
+    assert s["nums"] == [1, 2.5, b"x"]  # the wrapper's codec is applied
+    s["str"] = "hello"
+    assert s["str"] == b"hello"
+    assert isinstance(s, RedisStoreWithNumericLists)
+    assert r.lrange("nums", 0, -1) == [b"1", b"2.5", b"x"]  # over the given connection
+
+
+def test_store_from_source_builds_stacked_wrappers():
+    from redisdol.stores import RedisStoreWithNumericLists
+
+    r = FakeRedis()
+    cls = KeyCodecs.prefixed("p:")(RedisStoreWithNumericLists)
+    s = store_from_source(r, cls)
+    s["k"] = [1, 2]
+    assert r.lrange("p:k", 0, -1) == [b"1", b"2"] and s["k"] == [1, 2]
+
+
+def test_store_from_source_refuses_wrapped_class_it_cannot_unwrap():
+    from dol import Store
+
+    class Opaque(Store):  # a Store subclass that is not a dol class-wrapper
+        pass
+
+    with pytest.raises(TypeError, match="can't be determined"):
+        store_from_source(FakeRedis(), Opaque)
+
+
+def test_store_from_source_runs_the_wrapper_classes_own_init():
+    from dol import Store
+
+    class Tagged(Store):
+        def __init__(self, store, tag="T"):
+            super().__init__(store)
+            self.tag = tag
+
+    cls = Tagged.wrap(RedisPersister)
+    s = store_from_source(FakeRedis(), cls)
+    assert s.tag == "T"
+    s["k"] = "v"
+    assert s["k"] == b"v"
+    cls2 = wrap_kvs(RedisPersister, wrapper=Tagged, obj_of_data=lambda v: v)
+    assert store_from_source(FakeRedis(), cls2).tag == "T"

@@ -4,7 +4,7 @@ import operator
 import uuid
 from functools import wraps
 from collections.abc import Iterable
-from dol.base import Collection, KvReader, KvPersister
+from dol.base import Collection, KvReader, KvPersister, Store
 
 from redis import Redis
 from redis.exceptions import ResponseError
@@ -45,7 +45,46 @@ class RedisFactories:
         return cls.from_source(obj._source)
 
 
+def _wrapped_class_of(cls):
+    """``(wrapped class, wrapper class)`` of a ``dol`` class-wrapper (``wrap_kvs``,
+    ``KeyCodecs...``, ``filt_iter``), read from the closure of the ``__init__`` dol
+    generates for it (``None`` if it has none, or delegates through another attribute
+    than ``store``)."""
+    init = getattr(cls, "__init__", None)
+    code, cells = getattr(init, "__code__", None), getattr(init, "__closure__", None)
+    if code is None or not cells:
+        return None
+    free = dict(zip(code.co_freevars, cells))
+    if not {"wrapped", "delegation_attr", "__class__"} <= free.keys():
+        return None
+    try:
+        wrapped = free["wrapped"].cell_contents
+        attr = free["delegation_attr"].cell_contents
+        wrapper = free["__class__"].cell_contents
+    except ValueError:  # empty cell
+        return None
+    if not (isinstance(wrapped, type) and isinstance(wrapper, type) and attr == "store"):
+        return None
+    return wrapped, wrapper
+
+
 def _new_with_source(cls, source):
+    if issubclass(cls, Store):
+        # A dol-wrapped class: its instances delegate to an instance of the wrapped
+        # class, so build that one over ``source`` and wrap it (i2mint/redisdol#10).
+        found = _wrapped_class_of(cls)
+        if found is None:
+            raise TypeError(
+                f"Can't build {cls.__name__} over an existing connection: it is a dol "
+                "Store whose wrapped class can't be determined. Build the store over "
+                "the connection first and wrap that instance instead."
+            )
+        wrapped, wrapper = found
+        self = object.__new__(cls)
+        # what dol's generated __init__ does after building the delegate: the wrapper
+        # class's own __init__ (which may set state of its own), not Store's directly
+        super(wrapper, self).__init__(_new_with_source(wrapped, source))
+        return self
     self = object.__new__(cls)
     self._source = source
     return self
@@ -54,8 +93,10 @@ def _new_with_source(cls, source):
 def store_from_source(source, cls=None):
     """Make a store of type ``cls`` (default `RedisPersister`) over a ``Redis`` connection.
 
-    The returned store is a plain, *unwrapped* ``cls`` instance: it sees the whole
-    keyspace of ``source``. Apply any key/value codecs to the result yourself.
+    The returned store is a plain ``cls`` instance: it sees the whole keyspace of
+    ``source``. Apply any key/value codecs to the result yourself. ``cls`` may be a class
+    already wrapped with ``dol`` (e.g. `RedisStoreWithNumericLists`): its wrapped class is
+    built over ``source`` and wrapped as usual.
 
     >>> from fakeredis import FakeRedis
     >>> s = store_from_source(FakeRedis())
