@@ -80,16 +80,27 @@ def test_redislist_extend_empty_is_noop():
     assert len(l) == 0
 
 
-def test_store_hands_its_list_codec_to_the_handles():
+def test_store_hands_its_list_codec_to_the_handles_and_its_own_writes():
     class S(RedisPersister):
         list_encode = staticmethod(str.upper)
         list_decode = staticmethod(bytes.decode)
 
     s = _store(S)
-    s["k"] = ["a", "b"]  # store-level write is raw (no value codec here)
-    rl = s["k"]
-    rl.append("c")
-    assert list(rl) == [b"a".decode(), b"b".decode(), "C"]
+    s["k"] = ["a", "b"]
+    s["k"].append("c")
+    assert s._source.lrange("k", 0, -1) == [b"A", b"B", b"C"]  # no mixed encodings
+    assert list(s["k"]) == ["A", "B", "C"]
+
+
+def test_plain_function_as_class_level_codec_is_not_bound_as_a_method():
+    class S(RedisPersister):
+        def list_encode(x):  # noqa: N805 -- deliberately a plain function
+            return x.upper()
+
+    s = _store(S)
+    s["k"] = ["a"]
+    s["k"].append("b")
+    assert s._source.lrange("k", 0, -1) == [b"A", b"B"]
 
 
 def test_value_wrap_over_store_still_works_for_strings(monkeypatch):

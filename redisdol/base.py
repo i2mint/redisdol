@@ -283,14 +283,25 @@ class RedisCollection(RedisBytesCollection):
     list_encode = None
     list_decode = None
 
+    def _list_codec(self, name):
+        # type(self).<name> (not self.<name>) so a plain function set as a class
+        # attribute is not bound as a method; an instance attribute still wins.
+        return self.__dict__.get(name, getattr(type(self), name))
+
+    def _mk_list(self, k):
+        return RedisList(
+            self._source,
+            k,
+            encode=self._list_codec("list_encode"),
+            decode=self._list_codec("list_decode"),
+        )
+
     def __getitem__(self, k):
         val_type = self._source.type(k)
         if val_type == b"string":
             return self._source.get(k)
         elif val_type == b"list":
-            return RedisList(
-                self._source, k, encode=self.list_encode, decode=self.list_decode
-            )
+            return self._mk_list(k)
 
 
 class RedisPersister(RedisCollection, RedisBytesPersister):
@@ -300,4 +311,5 @@ class RedisPersister(RedisCollection, RedisBytesPersister):
         elif isinstance(v, Iterable):
             if k in self:
                 del self[k]
-            return self._source.rpush(k, *v)
+            encode = self._list_codec("list_encode") or _identity
+            return self._source.rpush(k, *map(encode, v))
