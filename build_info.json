@@ -1,39 +1,39 @@
 {
   "schema_version": 1,
-  "built_at": "2026-10-13T14:49:58Z",
+  "built_at": "2026-11-21T18:22:50Z",
   "package": {
     "name": "redisdol",
-    "version": "0.0.8",
+    "version": "0.0.9",
     "display_name": "redisdol",
     "source": "pyproject.toml"
   },
   "git": {
     "available": true,
-    "commit": "9fc86edb5f89e2a905ca14284b44577285d97ed5",
-    "short_commit": "9fc86ed",
+    "commit": "93b20d6d7bc61203236e25cfaa059f11ae386982",
+    "short_commit": "93b20d6",
     "branch": "master",
     "tags": [],
     "dirty": false,
     "remote_url": "https://github.com/i2mint/redisdol",
-    "commit_url": "https://github.com/i2mint/redisdol/commit/9fc86edb5f89e2a905ca14284b44577285d97ed5",
+    "commit_url": "https://github.com/i2mint/redisdol/commit/93b20d6d7bc61203236e25cfaa059f11ae386982",
     "error": null
   },
   "ci": {
     "provider": "github",
     "repository": "i2mint/redisdol",
-    "sha": "9fc86edb5f89e2a905ca14284b44577285d97ed5",
+    "sha": "93b20d6d7bc61203236e25cfaa059f11ae386982",
     "sha_in_history": true,
     "ref": "refs/heads/master",
     "ref_name": "master",
-    "run_id": "38416510991",
-    "run_url": "https://github.com/i2mint/redisdol/actions/runs/38416510991",
+    "run_id": "44935055766",
+    "run_url": "https://github.com/i2mint/redisdol/actions/runs/44935055766",
     "server_url": "https://github.com"
   },
   "tools": {
-    "epythet": "0.2.16",
-    "sphinx": "9.1.0",
+    "epythet": "0.2.23",
+    "sphinx": "9.1.1",
     "docutils": "0.22.4",
-    "python": "3.12.15"
+    "python": "3.12.16"
   },
   "config": {
     "theme": "auto",
@@ -60,11 +60,11 @@
   },
   "pypi": {
     "checked": true,
-    "latest": "0.0.8",
+    "latest": "0.0.9",
     "relation": "same",
     "error": null
   },
-  "reproduce": "git clone https://github.com/i2mint/redisdol && cd redisdol\ngit checkout 9fc86edb5f89e2a905ca14284b44577285d97ed5\npip install \"epythet==0.2.16\"\nepythet quickstart . --ignore tests/ scrap/ examples/",
+  "reproduce": "git clone https://github.com/i2mint/redisdol && cd redisdol\ngit checkout 93b20d6d7bc61203236e25cfaa059f11ae386982\npip install \"epythet==0.2.23\"\nepythet quickstart . --ignore tests/ scrap/ examples/",
   "warnings": [],
   "alignment": {
     "aligned": true,
