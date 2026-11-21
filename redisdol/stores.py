@@ -11,7 +11,7 @@ def _convert_numeric_list(data, output_type=list):
     return data  # not a list (e.g. a string value): pass through untouched
 
 
-@wrap_kvs(obj_of_data=_convert_numeric_list)
+@wrap_kvs(value_decoder=_convert_numeric_list)
 class RedisStoreWithNumericLists(RedisPersister):
     """
     Redis store that converts lists of numeric strings to lists of numbers.

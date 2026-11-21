@@ -105,7 +105,7 @@ def test_plain_function_as_class_level_codec_is_not_bound_as_a_method():
 
 def test_value_wrap_over_store_still_works_for_strings(monkeypatch):
     monkeypatch.setattr("redisdol.base.Redis", FakeRedis)
-    w = wrap_kvs(RedisPersister, obj_of_data=lambda d: d)()
+    w = wrap_kvs(RedisPersister, value_decoder=lambda d: d)()
     w["s"] = "v"
     assert w["s"] == b"v"
 
@@ -369,7 +369,7 @@ def test_store_from_source_runs_the_wrapper_classes_own_init():
     assert s.tag == "T"
     s["k"] = "v"
     assert s["k"] == b"v"
-    cls2 = wrap_kvs(RedisPersister, wrapper=Tagged, obj_of_data=lambda v: v)
+    cls2 = wrap_kvs(RedisPersister, wrapper=Tagged, value_decoder=lambda v: v)
     assert store_from_source(FakeRedis(), cls2).tag == "T"
 
 
